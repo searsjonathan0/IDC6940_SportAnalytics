@@ -1,7 +1,7 @@
 ---
-title: "Sports Analytics Using Ridge/Lasso Regression "
+title: "Sports Analytics Using Ridge/Lasso Regression Summer 2026"
 subtitle: "Predicting Team Wins Based On QB Play"
-author: "Jonathan Sears"
+author: "Jonathan Sears, Jasmine Cole, Noah Miller"
 date: '`r Sys.Date()`'
 format:
   html:
