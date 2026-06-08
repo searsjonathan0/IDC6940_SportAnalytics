@@ -28,25 +28,65 @@ communicate the value of your data science project.
 
 Carefully read this template since it has instructions and tips to
 writing!
-
-
 :::
 
 ## Introduction
 
+Under the stadium lights, the smell of popcorn and hot dogs and the band
+playing the “Fight song” as one final play runs the last 3 seconds of
+the 4th quarter, that is the aesthetic of an American Football game.
+Fans come together to support, cheer and hope for their team's victory.
+But what if fans or people in general had the ability to go into a match
+where they could predict the outcome? Being able to predict outcomes in
+the National Football League (NFL) requires many different features and
+data such as home field advantage, player performance, team statistics,
+and game conditions which can cause “multicollinearity”.
+Multicollinearity is the negative impact on the least square estimator
+in regression due to correlation between variables (McDonald, 2009).
+
+With the implementation of a machine learning regression model such as
+Lasso (Least Absolute Shrinkage and Selection Operator), and Ridge we
+can simplify the variables and focus only on the important aspects that
+help to accurately predict wins. Lasso uses a shrinkage technique called
+L1 regularization where it zeros out the least important variables,
+leaving only variables that are optimal for accurate prediction. Ridge
+regression uses a shrinkage technique called L2 regularization where it
+helps reduce multicollinearity without removing variables from the
+original set of independent variables. This helps with some of the
+distortion of the predictors.
+
+The main goal of this report is to examine the impact of
+multicollinearity on predicting NFL team success and to examine whether
+regularized regression models are better than a linear regression model.
+This will be seen by comparing a linear regression, Ridge regression,
+and Lasso regression ability to predict the number of regular-season
+wins by an NFL team using that team’s quarterback's performance
+statistics. Some of the predictor variables are the quarterback’s season
+passing yards, touchdowns, interceptions and passing expected points
+added (EPA), a metric that measures how many net points a quarterback
+adds to their team's scoring potential on passing plays, compared to the
+league-average expectation for any given down, distance, and field
+position. This report will also aim to find which quarterback
+performance statistics are most influential in predicting team
+performance. Understanding the impact of a quarterback’s performance on
+a team's success and the most influential quarterback performance
+statistics provide valuable information for NFL analysts, coaches, and
+teams trying to find players that contribute to team success and improve
+team performance.
+
 The introduction should:
 
--   Develop a storyline that captures attention and maintains interest.
+- Develop a storyline that captures attention and maintains interest.
 
--   Your audience is your peers
+- Your audience is your peers
 
--   Clearly state the problem or question you're addressing.
+- Clearly state the problem or question you're addressing.
 
 <!-- -->
 
--   Introduce why it is relevant needs.
+- Introduce why it is relevant needs.
 
--   Provide an overview of your approach.
+- Provide an overview of your approach.
 
 Example of writing including citing references:
 
@@ -70,9 +110,9 @@ Classification of Knee OA was studied here [@guida2021knee]
 
 ## Methods
 
--   Detail the models or algorithms used.
+- Detail the models or algorithms used.
 
--   Justify your choices based on the problem and data.
+- Justify your choices based on the problem and data.
 
 *The common non-parametric regression model is*
 $Y_i = m(X_i) + \varepsilon_i$*, where* $Y_i$ *can be defined as the sum
@@ -84,26 +124,23 @@ $m(x)$ *can be estimated with the product of* $Y_i$ *average and* $X_i$
 the line through the data points with the help of surrounding data
 points. The estimation formula is printed below [@R-base]:*
 
-$$
-M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}
-$$$W_n(x)$ *is the sum of weights that belongs to all real numbers.
+$$M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}$$
+$W_n(x)$ *is the sum of weights that belongs to all real numbers.
 Weights are positive numbers and small if* $X_i$ *is far from* $x$*.*
 
 *Another equation:*
 
-$$
-y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i
-$$
+$$y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i$$
 
 ## Analysis and Results
 
 ### Data Exploration and Visualization
 
--   Describe your data sources and collection process.
+- Describe your data sources and collection process.
 
--   Present initial findings and insights through visualizations.
+- Present initial findings and insights through visualizations.
 
--   Highlight unexpected patterns or anomalies.
+- Highlight unexpected patterns or anomalies.
 
 A study was conducted to determine how...
 
@@ -142,13 +179,13 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 
 ### Modeling and Results
 
--   Explain your data preprocessing and cleaning steps.
+- Explain your data preprocessing and cleaning steps.
 
--   Present your key findings in a clear and concise manner.
+- Present your key findings in a clear and concise manner.
 
--   Use visuals to support your claims.
+- Use visuals to support your claims.
 
--   **Tell a story about what the data reveals.**
+- **Tell a story about what the data reveals.**
 
 ```{r}
 
@@ -156,8 +193,8 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 
 ### Conclusion
 
--   Summarize your key findings.
+- Summarize your key findings.
 
--   Discuss the implications of your results.
+- Discuss the implications of your results.
 
 ## References
