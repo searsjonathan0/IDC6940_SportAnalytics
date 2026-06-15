@@ -42,10 +42,10 @@ the National Football League (NFL) requires many different features and
 data such as home field advantage, player performance, team statistics,
 and game conditions which can cause “multicollinearity”.
 Multicollinearity is the negative impact on the least square estimator
-in regression due to correlation between variables (McDonald, 2009).
+in regression due to correlation between variables (McDonald, 2009). 
 
 With the implementation of a machine learning regression model such as
-Lasso (Least Absolute Shrinkage and Selection Operator), and Ridge we
+Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we
 can simplify the variables and focus only on the important aspects that
 help to accurately predict wins. Lasso uses a shrinkage technique called
 L1 regularization where it zeros out the least important variables,
@@ -53,7 +53,27 @@ leaving only variables that are optimal for accurate prediction. Ridge
 regression uses a shrinkage technique called L2 regularization where it
 helps reduce multicollinearity without removing variables from the
 original set of independent variables. This helps with some of the
-distortion of the predictors.
+distortion of the predictors. 
+
+Previous research examining LASSO regression has consistently
+demonstrated its usefulness in datasets containing large numbers of
+predictors and correlated variables. Across applications in sports
+analytics, genetics, and other predictive modeling fields, LASSO has
+been shown to improve model interpretability by shrinking insignificant
+coefficients toward zero while retaining the most influential predictors
+(Bhattacharyya, 2025; Jana & Hemalatha, 2021; Lockhart et al., 2014).
+Such reduces model complexity and can improve predictive performance
+compared to traditional regression methods (Alshqaq & Abuzaid, 2023;
+Bhattacharyya, 2025 ; Lockhart et al., 2014). Studies have also shown
+that regularization techniques such as Ridge regression can effectively
+address multicollinearity by reducing coefficient variance without
+removing predictors from the model. One limitation discussed within the
+literature is that highly correlated variables can influence LASSO's
+variable selection process, potentially causing relevant predictors to
+be excluded (Lockhart et al., 2014). Overall, the findings suggest that
+regularized regression methods provide a useful framework for prediction
+problems involving numerous and potentially correlated variables, making
+them applicable to NFL team performance analysis.
 
 The main goal of this report is to examine the impact of
 multicollinearity on predicting NFL team success and to examine whether
@@ -62,7 +82,7 @@ This will be seen by comparing a linear regression, Ridge regression,
 and Lasso regression ability to predict the number of regular-season
 wins by an NFL team using that team’s quarterback's performance
 statistics. Some of the predictor variables are the quarterback’s season
-passing yards, touchdowns, interceptions and passing expected points
+passing yards, touchdowns, interceptions and passing expected points 
 added (EPA), a metric that measures how many net points a quarterback
 adds to their team's scoring potential on passing plays, compared to the
 league-average expectation for any given down, distance, and field
@@ -72,7 +92,7 @@ performance. Understanding the impact of a quarterback’s performance on
 a team's success and the most influential quarterback performance
 statistics provide valuable information for NFL analysts, coaches, and
 teams trying to find players that contribute to team success and improve
-team performance.
+team performance. 
 
 The introduction should:
 
@@ -124,9 +144,9 @@ $m(x)$ *can be estimated with the product of* $Y_i$ *average and* $X_i$
 the line through the data points with the help of surrounding data
 points. The estimation formula is printed below [@R-base]:*
 
-$$M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}$$
-$W_n(x)$ *is the sum of weights that belongs to all real numbers.
-Weights are positive numbers and small if* $X_i$ *is far from* $x$*.*
+$$M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}$$ $W_n(x)$ *is the sum
+of weights that belongs to all real numbers. Weights are positive
+numbers and small if* $X_i$ *is far from* $x$*.*
 
 *Another equation:*
 
@@ -146,36 +166,105 @@ A study was conducted to determine how...
 
 ```{r, warning=FALSE, echo=T, message=FALSE}
 # loading packages 
-library(tidyverse)
-library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
+library(corrplot)
+library(nflreadr)
+library(dplyr)
 ```
 
 ```{python}
 import pandas as pd
 ```
 
-```{r, warning=FALSE, echo=TRUE}
+```{r, warning=FALSE, message=FALSE, echo=TRUE}
 # Load Data
-kable(head(murders))
 
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
+years = 2015:2024
+weekly = load_player_stats(years)
+qbs <- weekly %>%
+  filter(position == "QB")
+qb_season <- qbs %>%
+  group_by(player_display_name, season, team) %>%
+  summarize(
+    passing_yards = sum(passing_yards, na.rm = TRUE),
+    passing_tds = sum(passing_tds, na.rm = TRUE),
+    interceptions = sum(passing_interceptions, na.rm = TRUE),
+    completions = sum(completions, na.rm = TRUE),
+    attempts = sum(attempts, na.rm = TRUE),
+    passing_epa = sum(passing_epa, na.rm = TRUE),
+    rushing_yards = sum(rushing_yards, na.rm = TRUE),
+    rushing_tds = sum(rushing_tds, na.rm = TRUE)
+  )
 
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
+qb_season <- qb_season %>%
+  mutate(
+    completion_pct = (completions / attempts) * 100
+  )
 
+write.csv(qb_season, "qb_season_stats.csv", row.names = FALSE)
+
+schedules <- load_schedules(2015:2024)
+team_wins <- schedules %>%
+  filter(game_type == "REG") %>%
+  mutate(
+    home_win = ifelse(home_score > away_score, 1, 0),
+    away_win = ifelse(away_score > home_score, 1, 0)
+  )
+
+home_wins <- team_wins %>%
+  group_by(season, team = home_team) %>%
+  summarize(wins = sum(home_win, na.rm = TRUE))
+
+away_wins <- team_wins %>%
+  group_by(season, team = away_team) %>%
+  summarize(wins = sum(away_win, na.rm = TRUE))
+
+team_total_wins <- bind_rows(home_wins, away_wins) %>%
+  group_by(season, team) %>%
+  summarize(wins = sum(wins))
+
+qb_season <- qb_season %>%
+  left_join(team_total_wins,
+            by = c("season", "team"))
+
+write.csv(qb_season,
+          "qb_season_dataset.csv",
+          row.names = FALSE)
+
+qb_season <- qb_season %>%
+  filter(attempts >= 200)
+
+
+write.csv(qb_season,
+          "qb_season_dataset.csv",
+          row.names = FALSE)
+
+qb_season1 <- qb_season %>%
+  ungroup() %>%
+  select(-player_display_name, -season, -team)
 ```
+
+```{r}
+correlation_matrix = round(cor(qb_season1, use = "complete.obs"), 2)
+corrplot(correlation_matrix, method = "color", type = "upper",
+         tl.col = "black", tl.srt = 45)
+```
+
+Figure 1: Correlation Plot between Variables
+
+According to the correlation plot above, the passing EPA has the
+strongest correlation with team wins (r = 0.66). Completion percentage
+showed a moderate correlation with wins (r=0.41). The rushing statistics
+like rushing touchdowns and rushing yards appeared to have the lowest
+positive relationship with wins (average r= 0.22) while interceptions
+had almost no linear relationship with wins (r=0.06). 
+
+The analysis also identified substantial multicollinearity among several
+passing statistics. Completions and attempts were nearly perfectly
+correlated (r = 0.99), while passing yards showed very strong
+correlations with completions (r = 0.97) and attempts (r = 0.96). These
+findings suggest that some passing variables may provide redundant
+information and should be carefully considered during model
+development. 
 
 ### Modeling and Results
 
@@ -198,3 +287,59 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 - Discuss the implications of your results.
 
 ## References
+
+Gary C. McDonald. (2009). Ridge regression. WIREs Computational
+Statistics, 1(1), 93–100. <https://doi.org/10.1002/wics.14>
+
+Robert Tibshirani (1996). Regression shrinkage and selection via the
+lasso. Journal of the Royal Statistical Society: Series B
+(Methodological), 58(1), 267–288.
+<https://doi.org/10.1111/j.2517-6161.1996.tb02080.x>
+
+Gweon, J. (2024). Comparing different machine learning methods on NFL
+defensive player performance prediction \[Master's report, Kansas State
+University\]. K-State Research Exchange.[
+https://krex.k-state.edu/items/b5cae4fb-f772-42ce-9dad-d7a84094e8bf](https://krex.k-state.edu/items/b5cae4fb-f772-42ce-9dad-d7a84094e8bf) 
+
+Juuri, S. (2023). Predicting the results of NFL games using machine
+learning \[Master's thesis, Aalto University\]. Aaltodoc.[
+https://aaltodoc.aalto.fi/items/8a329777-bdfe-4800-8d8d-d6dc3e75be70](https://aaltodoc.aalto.fi/items/8a329777-bdfe-4800-8d8d-d6dc3e75be70) 
+
+South, C., & Egros, E. (2020). Forecasting college football game
+outcomes using modern modeling techniques. Journal of Sports Analytics,
+6(1), 25-33.
+
+Venkat Sai Tarun G, Sriramya P. Analyzing ola data for precise price
+prediction using xgboost technique comparing with lasso regression. In:
+Advances in Parallel Computing Algorithms, Tools and Paradigms. SAGE
+Publications; 2026:360-366.
+doi:[10.3233/APC220050](https://doi.org/10.3233/APC220050)
+
+Laufer, B., Docherty, P. D., Murray, R., Krueger-Ziolek, S., Jalal, N.
+A., Hoeflinger, F., Rupitsch, S. J., Reindl, L., & Moeller, K. (2023).
+Sensor Selection for Tidal Volume Determination via Linear
+Regression—Impact of Lasso versus Ridge Regression. Sensors (Basel,
+Switzerland), 23(17), 7407. <https://doi.org/10.3390/s23177407>
+
+Geraldo-Campos, L. A., Soria, J. J., & Pando-Ezcurra, T. (2022). Machine
+learning for credit risk in the Reactive Peru Program: A comparison of
+the Lasso and Ridge Regression models. Economies, 10(8), 1–21.
+<https://doi.org/10.3390/economies10080188>
+
+Alshqaq, S. S., & Abuzaid, A. H. (2023). An efficient method for
+variable selection based on diagnostic-Lasso regression. Symmetry,
+15(12), 2155.[
+https://doi.org/10.3390/sym15122155](https://doi.org/10.3390/sym15122155)
+
+Jana, A., & Hemalatha, S. (2021). Football player performance analysis
+using particle swarm optimization and player value calculation using
+regression. Journal of Physics: Conference Series, 1911(1), 012011.
+<https://doi.org/10.1088/1742-6596/1911/1/012011>
+
+Lockhart, R., Taylor, J., Tibshirani, R. J., & Tibshirani, R. (2014). A
+significance test for the lasso. The Annals of Statistics, 42(2),
+413–468. <https://doi.org/10.1214/13-AOS1175>
+
+Bhattacharyya, J. (2025, January 23). LASSO regression – A procedural
+improvement (SSRN Working Paper No. 5108591). SSRN.
+https://doi.org/10.2139/ssrn.5108591
