@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jonathan Sears, Jasmine Cole, Noah Miller">
-<meta name="dcterms.date" content="2026-06-15">
+<meta name="dcterms.date" content="2026-06-22">
 
 <title>Sports Analytics Using Ridge/Lasso Regression Summer 2026</title>
 <style>
@@ -2385,7 +2385,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 15, 2026</p>
+      <p class="date">June 22, 2026</p>
     </div>
   </div>
   
@@ -2414,10 +2414,10 @@ Important
 </div>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Under the stadium lights, the smell of popcorn and hot dogs and the band playing the “Fight song” as one final play runs the last 3 seconds of the 4th quarter, that is the aesthetic of an American Football game. Fans come together to support, cheer and hope for their team’s victory. But what if fans or people in general had the ability to go into a match where they could predict the outcome? Being able to predict outcomes in the National Football League (NFL) requires many different features and data such as home field advantage, player performance, team statistics, and game conditions which can cause “multicollinearity”. Multicollinearity is the negative impact on the least square estimator in regression due to correlation between variables (McDonald, 2009). </p>
+<p>Under the stadium lights, the smell of popcorn and hot dogs and the band playing the “Fight song” as one final play runs the last 3 seconds of the 4th quarter, that is the aesthetic of an American Football game. Fans come together to support, cheer and hope for their team’s victory. But what if fans or people in general had the ability to go into a match where they could predict the outcome? Being able to predict outcomes in the National Football League (NFL) requires many different features and data such as home field advantage, player performance, team statistics, and game conditions which can cause “multicollinearity”. Multicollinearity is the negative impact on the least square estimator in regression due to correlation between variables <span class="citation" data-cites="mcdonald2009ridge">(<a href="#ref-mcdonald2009ridge" role="doc-biblioref">McDonald 2009</a>)</span>. </p>
 <p>With the implementation of a machine learning regression model such as Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we can simplify the variables and focus only on the important aspects that help to accurately predict wins. Lasso uses a shrinkage technique called L1 regularization where it zeros out the least important variables, leaving only variables that are optimal for accurate prediction. Ridge regression uses a shrinkage technique called L2 regularization where it helps reduce multicollinearity without removing variables from the original set of independent variables. This helps with some of the distortion of the predictors. </p>
-<p>Previous research examining LASSO regression has consistently demonstrated its usefulness in datasets containing large numbers of predictors and correlated variables. Across applications in sports analytics, genetics, and other predictive modeling fields, LASSO has been shown to improve model interpretability by shrinking insignificant coefficients toward zero while retaining the most influential predictors (Bhattacharyya, 2025; Jana &amp; Hemalatha, 2021; Lockhart et al., 2014). Such reduces model complexity and can improve predictive performance compared to traditional regression methods (Alshqaq &amp; Abuzaid, 2023; Bhattacharyya, 2025 ; Lockhart et al., 2014). Studies have also shown that regularization techniques such as Ridge regression can effectively address multicollinearity by reducing coefficient variance without removing predictors from the model. One limitation discussed within the literature is that highly correlated variables can influence LASSO’s variable selection process, potentially causing relevant predictors to be excluded (Lockhart et al., 2014). Overall, the findings suggest that regularized regression methods provide a useful framework for prediction problems involving numerous and potentially correlated variables, making them applicable to NFL team performance analysis.</p>
-<p>The main goal of this report is to examine the impact of multicollinearity on predicting NFL team success and to examine whether regularized regression models are better than a linear regression model. This will be seen by comparing a linear regression, Ridge regression, and Lasso regression ability to predict the number of regular-season wins by an NFL team using that team’s quarterback’s performance statistics. Some of the predictor variables are the quarterback’s season passing yards, touchdowns, interceptions and passing expected points  added (EPA), a metric that measures how many net points a quarterback adds to their team’s scoring potential on passing plays, compared to the league-average expectation for any given down, distance, and field position. This report will also aim to find which quarterback performance statistics are most influential in predicting team performance. Understanding the impact of a quarterback’s performance on a team’s success and the most influential quarterback performance statistics provide valuable information for NFL analysts, coaches, and teams trying to find players that contribute to team success and improve team performance. </p>
+<p>Previous research examining LASSO regression has consistently demonstrated its usefulness in datasets containing large numbers of predictors and correlated variables. Across applications in sports analytics, genetics, and other predictive modeling fields, LASSO has been shown to improve model interpretability by shrinking insignificant coefficients toward zero while retaining the most influential predictors <span class="citation" data-cites="bhattacharyya2025lasso jana2021football lockhart2014lasso">(<a href="#ref-bhattacharyya2025lasso" role="doc-biblioref">Bhattacharyya 2025</a>; <a href="#ref-jana2021football" role="doc-biblioref">Jana and Hemalatha 2021</a>; <a href="#ref-lockhart2014lasso" role="doc-biblioref">Lockhart et al. 2014</a>)</span>. Such reduces model complexity and can improve predictive performance compared to traditional regression methods <span class="citation" data-cites="alshqaq2023diagnostic bhattacharyya2025lasso lockhart2014lasso">(<a href="#ref-alshqaq2023diagnostic" role="doc-biblioref">Alshqaq and Abuzaid 2023</a>; <a href="#ref-bhattacharyya2025lasso" role="doc-biblioref">Bhattacharyya 2025</a>; <a href="#ref-lockhart2014lasso" role="doc-biblioref">Lockhart et al. 2014</a>)</span>. Studies have also shown that regularization techniques such as Ridge regression can effectively address multicollinearity by reducing coefficient variance without removing predictors from the model. One limitation discussed within the literature is that highly correlated variables can influence LASSO’s variable selection process, potentially causing relevant predictors to be excluded <span class="citation" data-cites="lockhart2014lasso">(<a href="#ref-lockhart2014lasso" role="doc-biblioref">Lockhart et al. 2014</a>)</span>. Overall, the findings suggest that regularized regression methods provide a useful framework for prediction problems involving numerous and potentially correlated variables, making them applicable to NFL team performance analysis.</p>
+<p>The main goal of this report is to examine the impact of multicollinearity on predicting NFL team success and to examine whether regularized regression models are better than a linear regression model. This will be seen by comparing a linear regression, Ridge regression, and Lasso regression ability to predict the number of regular-season wins by an NFL team using that team’s quarterback’s performance statistics. Some of the predictor variables are the quarterback’s season passing yards, touchdowns, interceptions and passing expected points  added (EPA), a metric that measures how many net points a quarterback adds to their team’s scoring potential on passing plays, compared to the league-average expectation for any given down, distance, and field position. This report will also aim to find which quarterback performance statistics are most influential in predicting team performance. Understanding the impact of a quarterback’s performance on a team’s success and the most influential quarterback performance statistics provide valuable information for NFL analysts, coaches, and teams trying to find players that contribute to team success and improve team performance.</p>
 <p>The introduction should:</p>
 <ul>
 <li><p>Develop a storyline that captures attention and maintains interest.</p></li>
@@ -2430,10 +2430,10 @@ Important
 <li><p>Provide an overview of your approach.</p></li>
 </ul>
 <p>Example of writing including citing references:</p>
-<p><em>This is an introduction to ….. regression, which is a non-parametric estimator that estimates the conditional expectation of two variables which is random. The goal of a kernel regression is to discover the non-linear relationship between two random variables. To discover the non-linear relationship, kernel estimator or kernel smoothing is the main method to estimate the curve for non-parametric statistics. In kernel estimator, weight function is known as kernel function <span class="citation" data-cites="efr2008">(<a href="#ref-efr2008" role="doc-biblioref">Efromovich 2008</a>)</span>. Cite this paper <span class="citation" data-cites="bro2014principal">(<a href="#ref-bro2014principal" role="doc-biblioref">Bro and Smilde 2014</a>)</span>. The GEE <span class="citation" data-cites="wang2014">(<a href="#ref-wang2014" role="doc-biblioref">Wang 2014</a>)</span>. The PCA <span class="citation" data-cites="daffertshofer2004pca">(<a href="#ref-daffertshofer2004pca" role="doc-biblioref">Daffertshofer et al. 2004</a>)</span></em>. Topology can be used in machine learning <span class="citation" data-cites="adams2021topology">(<a href="#ref-adams2021topology" role="doc-biblioref">Adams and Moy 2021</a>)</span></p>
-<p>For Symbolic Regression <span class="citation" data-cites="wang2019symbolic">(<a href="#ref-wang2019symbolic" role="doc-biblioref">Wang et al. 2019</a>)</span> <em>This is my work and I want to add more work…</em></p>
-<p>Cite new paper <span class="citation" data-cites="su2012linear">(<a href="#ref-su2012linear" role="doc-biblioref">Su et al. 2012</a>)</span></p>
-<p>Classification of Knee OA was studied here <span class="citation" data-cites="guida2021knee">(<a href="#ref-guida2021knee" role="doc-biblioref">Guida et al. 2021</a>)</span></p>
+<p><em>This is an introduction to ….. regression, which is a non-parametric estimator that estimates the conditional expectation of two variables which is random. The goal of a kernel regression is to discover the non-linear relationship between two random variables. To discover the non-linear relationship, kernel estimator or kernel smoothing is the main method to estimate the curve for non-parametric statistics. In kernel estimator, weight function is known as kernel function <span class="citation" data-cites="efr2008">(<a href="#ref-efr2008" role="doc-biblioref"><strong>efr2008?</strong></a>)</span>. Cite this paper <span class="citation" data-cites="bro2014principal">(<a href="#ref-bro2014principal" role="doc-biblioref"><strong>bro2014principal?</strong></a>)</span>. The GEE <span class="citation" data-cites="wang2014">(<a href="#ref-wang2014" role="doc-biblioref"><strong>wang2014?</strong></a>)</span>. The PCA <span class="citation" data-cites="daffertshofer2004pca">(<a href="#ref-daffertshofer2004pca" role="doc-biblioref"><strong>daffertshofer2004pca?</strong></a>)</span></em>. Topology can be used in machine learning <span class="citation" data-cites="adams2021topology">(<a href="#ref-adams2021topology" role="doc-biblioref"><strong>adams2021topology?</strong></a>)</span></p>
+<p>For Symbolic Regression <span class="citation" data-cites="wang2019symbolic">(<a href="#ref-wang2019symbolic" role="doc-biblioref"><strong>wang2019symbolic?</strong></a>)</span> <em>This is my work and I want to add more work…</em></p>
+<p>Cite new paper <span class="citation" data-cites="su2012linear">(<a href="#ref-su2012linear" role="doc-biblioref"><strong>su2012linear?</strong></a>)</span></p>
+<p>Classification of Knee OA was studied here <span class="citation" data-cites="guida2021knee">(<a href="#ref-guida2021knee" role="doc-biblioref"><strong>guida2021knee?</strong></a>)</span></p>
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
@@ -2441,7 +2441,7 @@ Important
 <li><p>Detail the models or algorithms used.</p></li>
 <li><p>Justify your choices based on the problem and data.</p></li>
 </ul>
-<p><em>The common non-parametric regression model is</em> <span class="math inline">\(Y_i = m(X_i) + \varepsilon_i\)</span><em>, where</em> <span class="math inline">\(Y_i\)</span> <em>can be defined as the sum of the regression function value</em> <span class="math inline">\(m(x)\)</span> <em>for</em> <span class="math inline">\(X_i\)</span><em>. Here</em> <span class="math inline">\(m(x)\)</span> <em>is unknown and</em> <span class="math inline">\(\varepsilon_i\)</span> <em>some errors. With the help of this definition, we can create the estimation for local averaging i.e.</em> <span class="math inline">\(m(x)\)</span> <em>can be estimated with the product of</em> <span class="math inline">\(Y_i\)</span> <em>average and</em> <span class="math inline">\(X_i\)</span> <em>is near to</em> <span class="math inline">\(x\)</span><em>. In other words, this means that we are discovering the line through the data points with the help of surrounding data points. The estimation formula is printed below <span class="citation" data-cites="R-base">(<a href="#ref-R-base" role="doc-biblioref">R Core Team 2019</a>)</span>:</em></p>
+<p><em>The common non-parametric regression model is</em> <span class="math inline">\(Y_i = m(X_i) + \varepsilon_i\)</span><em>, where</em> <span class="math inline">\(Y_i\)</span> <em>can be defined as the sum of the regression function value</em> <span class="math inline">\(m(x)\)</span> <em>for</em> <span class="math inline">\(X_i\)</span><em>. Here</em> <span class="math inline">\(m(x)\)</span> <em>is unknown and</em> <span class="math inline">\(\varepsilon_i\)</span> <em>some errors. With the help of this definition, we can create the estimation for local averaging i.e.</em> <span class="math inline">\(m(x)\)</span> <em>can be estimated with the product of</em> <span class="math inline">\(Y_i\)</span> <em>average and</em> <span class="math inline">\(X_i\)</span> <em>is near to</em> <span class="math inline">\(x\)</span><em>. In other words, this means that we are discovering the line through the data points with the help of surrounding data points. The estimation formula is printed below <span class="citation" data-cites="R-base">(<a href="#ref-R-base" role="doc-biblioref"><strong>R-base?</strong></a>)</span>:</em></p>
 <p><span class="math display">\[M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i  \tag{1}\]</span> <span class="math inline">\(W_n(x)\)</span> <em>is the sum of weights that belongs to all real numbers. Weights are positive numbers and small if</em> <span class="math inline">\(X_i\)</span> <em>is far from</em> <span class="math inline">\(x\)</span><em>.</em></p>
 <p><em>Another equation:</em></p>
 <p><span class="math display">\[y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i\]</span></p>
@@ -2591,36 +2591,28 @@ Important
 <p>Jana, A., &amp; Hemalatha, S. (2021). Football player performance analysis using particle swarm optimization and player value calculation using regression. Journal of Physics: Conference Series, 1911(1), 012011. <a href="https://doi.org/10.1088/1742-6596/1911/1/012011" class="uri">https://doi.org/10.1088/1742-6596/1911/1/012011</a></p>
 <p>Lockhart, R., Taylor, J., Tibshirani, R. J., &amp; Tibshirani, R. (2014). A significance test for the lasso. The Annals of Statistics, 42(2), 413–468. <a href="https://doi.org/10.1214/13-AOS1175" class="uri">https://doi.org/10.1214/13-AOS1175</a></p>
 <p>Bhattacharyya, J. (2025, January 23). LASSO regression – A procedural improvement (SSRN Working Paper No. 5108591). SSRN. https://doi.org/10.2139/ssrn.5108591</p>
+<p><br>
+</p>
+<p><br>
+</p>
 
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
-<div id="ref-adams2021topology" class="csl-entry" role="listitem">
-Adams, Henry, and Michael Moy. 2021. <span>“Topology Applied to Machine Learning: From Global to Local.”</span> <em>Frontiers in Artificial Intelligence</em> 4: 668302.
+<div id="ref-alshqaq2023diagnostic" class="csl-entry" role="listitem">
+Alshqaq, S. S., and A. H. Abuzaid. 2023. <span>“An Efficient Method for Variable Selection Based on Diagnostic-Lasso Regression.”</span> <em>Symmetry</em> 15 (12): 2155. <a href="https://doi.org/10.3390/sym15122155">https://doi.org/10.3390/sym15122155</a>.
 </div>
-<div id="ref-bro2014principal" class="csl-entry" role="listitem">
-Bro, Rasmus, and Age K Smilde. 2014. <span>“Principal Component Analysis.”</span> <em>Analytical Methods</em> 6 (9): 2812–31.
+<div id="ref-bhattacharyya2025lasso" class="csl-entry" role="listitem">
+Bhattacharyya, J. 2025. <em>LASSO Regression: A Procedural Improvement</em>. No. 5108591. SSRN. <a href="https://doi.org/10.2139/ssrn.5108591">https://doi.org/10.2139/ssrn.5108591</a>.
 </div>
-<div id="ref-daffertshofer2004pca" class="csl-entry" role="listitem">
-Daffertshofer, Andreas, Claudine JC Lamoth, Onno G Meijer, and Peter J Beek. 2004. <span>“PCA in Studying Coordination and Variability: A Tutorial.”</span> <em>Clinical Biomechanics</em> 19 (4): 415–28.
+<div id="ref-jana2021football" class="csl-entry" role="listitem">
+Jana, A., and S. Hemalatha. 2021. <span>“Football Player Performance Analysis Using Particle Swarm Optimization and Player Value Calculation Using Regression.”</span> <em>Journal of Physics: Conference Series</em> 1911 (1): 012011. <a href="https://doi.org/10.1088/1742-6596/1911/1/012011">https://doi.org/10.1088/1742-6596/1911/1/012011</a>.
 </div>
-<div id="ref-efr2008" class="csl-entry" role="listitem">
-Efromovich, S. 2008. <em>Nonparametric Curve Estimation: Methods, Theory, and Applications</em>. Springer Series in Statistics. Springer New York. <a href="https://books.google.com/books?id=mdoLBwAAQBAJ">https://books.google.com/books?id=mdoLBwAAQBAJ</a>.
+<div id="ref-lockhart2014lasso" class="csl-entry" role="listitem">
+Lockhart, Richard, Jonathan Taylor, Ryan J. Tibshirani, and Robert Tibshirani. 2014. <span>“A Significance Test for the Lasso.”</span> <em>The Annals of Statistics</em> 42 (2): 413–68. <a href="https://doi.org/10.1214/13-AOS1175">https://doi.org/10.1214/13-AOS1175</a>.
 </div>
-<div id="ref-guida2021knee" class="csl-entry" role="listitem">
-Guida, Carmine, Ming Zhang, and Juan Shan. 2021. <span>“Knee Osteoarthritis Classification Using 3D CNN and MRI.”</span> <em>Applied Sciences</em> 11 (11): 5196.
-</div>
-<div id="ref-R-base" class="csl-entry" role="listitem">
-R Core Team. 2019. <em>R: A Language and Environment for Statistical Computing</em>. R Foundation for Statistical Computing. <a href="https://www.R-project.org">https://www.R-project.org</a>.
-</div>
-<div id="ref-su2012linear" class="csl-entry" role="listitem">
-Su, Xiaogang, Xin Yan, and Chih-Ling Tsai. 2012. <span>“Linear Regression.”</span> <em>Wiley Interdisciplinary Reviews: Computational Statistics</em> 4 (3): 275–94.
-</div>
-<div id="ref-wang2014" class="csl-entry" role="listitem">
-Wang, Ming. 2014. <span>“Generalized Estimating Equations in Longitudinal Data Analysis: A Review and Recent Developments.”</span> <em>Advances in Statistics</em> 2014.
-</div>
-<div id="ref-wang2019symbolic" class="csl-entry" role="listitem">
-Wang, Yiqun, Nicholas Wagner, and James M Rondinelli. 2019. <span>“Symbolic Regression in Materials Science.”</span> <em>MRS Communications</em> 9 (3): 793–805.
+<div id="ref-mcdonald2009ridge" class="csl-entry" role="listitem">
+McDonald, Gary C. 2009. <span>“Ridge Regression.”</span> <em>WIREs Computational Statistics</em> 1 (1): 93–100. <a href="https://doi.org/10.1002/wics.14">https://doi.org/10.1002/wics.14</a>.
 </div>
 </div></section></div></main>
 <!-- /main column -->

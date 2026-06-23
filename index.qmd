@@ -42,7 +42,7 @@ the National Football League (NFL) requires many different features and
 data such as home field advantage, player performance, team statistics,
 and game conditions which can cause “multicollinearity”.
 Multicollinearity is the negative impact on the least square estimator
-in regression due to correlation between variables (McDonald, 2009). 
+in regression due to correlation between variables [@mcdonald2009ridge]. 
 
 With the implementation of a machine learning regression model such as
 Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we
@@ -61,16 +61,15 @@ predictors and correlated variables. Across applications in sports
 analytics, genetics, and other predictive modeling fields, LASSO has
 been shown to improve model interpretability by shrinking insignificant
 coefficients toward zero while retaining the most influential predictors
-(Bhattacharyya, 2025; Jana & Hemalatha, 2021; Lockhart et al., 2014).
+[@bhattacharyya2025lasso; @jana2021football; @lockhart2014lasso].
 Such reduces model complexity and can improve predictive performance
-compared to traditional regression methods (Alshqaq & Abuzaid, 2023;
-Bhattacharyya, 2025 ; Lockhart et al., 2014). Studies have also shown
+compared to traditional regression methods [@alshqaq2023diagnostic; @bhattacharyya2025lasso; @lockhart2014lasso]. Studies have also shown
 that regularization techniques such as Ridge regression can effectively
 address multicollinearity by reducing coefficient variance without
 removing predictors from the model. One limitation discussed within the
 literature is that highly correlated variables can influence LASSO's
 variable selection process, potentially causing relevant predictors to
-be excluded (Lockhart et al., 2014). Overall, the findings suggest that
+be excluded [@lockhart2014lasso]. Overall, the findings suggest that
 regularized regression methods provide a useful framework for prediction
 problems involving numerous and potentially correlated variables, making
 them applicable to NFL team performance analysis.
@@ -92,7 +91,7 @@ performance. Understanding the impact of a quarterback’s performance on
 a team's success and the most influential quarterback performance
 statistics provide valuable information for NFL analysts, coaches, and
 teams trying to find players that contribute to team success and improve
-team performance. 
+team performance.
 
 The introduction should:
 
@@ -343,3 +342,7 @@ significance test for the lasso. The Annals of Statistics, 42(2),
 Bhattacharyya, J. (2025, January 23). LASSO regression – A procedural
 improvement (SSRN Working Paper No. 5108591). SSRN.
 https://doi.org/10.2139/ssrn.5108591
+
+\
+
+\
