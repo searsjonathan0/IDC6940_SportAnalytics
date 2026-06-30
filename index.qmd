@@ -42,7 +42,8 @@ the National Football League (NFL) requires many different features and
 data such as home field advantage, player performance, team statistics,
 and game conditions which can cause “multicollinearity”.
 Multicollinearity is the negative impact on the least square estimator
-in regression due to correlation between variables [@mcdonald2009ridge]. 
+in regression due to correlation between variables
+[@mcdonald2009ridge]. 
 
 With the implementation of a machine learning regression model such as
 Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we
@@ -61,9 +62,10 @@ predictors and correlated variables. Across applications in sports
 analytics, genetics, and other predictive modeling fields, LASSO has
 been shown to improve model interpretability by shrinking insignificant
 coefficients toward zero while retaining the most influential predictors
-[@bhattacharyya2025lasso; @jana2021football; @lockhart2014lasso].
-Such reduces model complexity and can improve predictive performance
-compared to traditional regression methods [@alshqaq2023diagnostic; @bhattacharyya2025lasso; @lockhart2014lasso]. Studies have also shown
+[@bhattacharyya2025lasso; @jana2021football; @lockhart2014lasso]. Such
+reduces model complexity and can improve predictive performance compared
+to traditional regression methods [@alshqaq2023diagnostic;
+@bhattacharyya2025lasso; @lockhart2014lasso]. Studies have also shown
 that regularization techniques such as Ridge regression can effectively
 address multicollinearity by reducing coefficient variance without
 removing predictors from the model. One limitation discussed within the
@@ -93,41 +95,94 @@ statistics provide valuable information for NFL analysts, coaches, and
 teams trying to find players that contribute to team success and improve
 team performance.
 
-The introduction should:
-
-- Develop a storyline that captures attention and maintains interest.
-
-- Your audience is your peers
-
-- Clearly state the problem or question you're addressing.
-
-<!-- -->
-
-- Introduce why it is relevant needs.
-
-- Provide an overview of your approach.
-
-Example of writing including citing references:
-
-*This is an introduction to ..... regression, which is a non-parametric
-estimator that estimates the conditional expectation of two variables
-which is random. The goal of a kernel regression is to discover the
-non-linear relationship between two random variables. To discover the
-non-linear relationship, kernel estimator or kernel smoothing is the
-main method to estimate the curve for non-parametric statistics. In
-kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]*. Topology can be used in machine
-learning [@adams2021topology]
-
-For Symbolic Regression [@wang2019symbolic] *This is my work and I want
-to add more work...*
-
-Cite new paper [@su2012linear]
-
-Classification of Knee OA was studied here [@guida2021knee]
-
 ## Methods
+
+Across various predictive modeling applications ranging to sports
+outcomes in (South & Egros, 2020), sensor organization to ensure
+optimization (Laufer et al., 2023) and credit risks awareness in
+(Geraldo-Campos et al., 2022) LASSO, least absolute shrinkage and
+selection operator and ridge regression are both linear regression
+technique and methodologies that are designed to handle
+multicollinearity and mult-dimensional data. Both of these methodologies
+use a shrinkage tool that penalizes the regression coefficients. Both
+methods solve a modified optimization problem of the form:
+![](data:image/png;base64,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)
+
+\
+
+where y is the response vector, X is the matrix of predictors, is the
+vector of the coefficients, P()is the penalty term, and 0 is the
+regularization parameter controlling the strength of the penalty. 
+
+However, the difference between LASSO and Ridge regression comes from
+how their penalties are calculated mathematically. LASSO uses a L1
+penalty norm, which shrinks the least important variables in the dataset
+to zero which allows for the selection of key effective variables 
+
+(P()=j-1pj). Ridge regression uses a L2 penalty norm, which shrinks
+parameters close to zero reducing the variance (P()= j=1pj2) but where
+ridge differs from LASSO is that in the end and final model, ridge
+retains all variables . LASSO is a “step-up” from ridge allowing for key
+variable selection, where ridge can struggle with its limitations due to
+retention of all variables. This highlights that LASSO’s ability to
+produce a subset of “key-variables” from a high-dimensional dataset,
+makes it highly efficient. 
+
+For example, sports outcomes in (South & Egros, 2020), LASSO was able to
+identify home-field advantage as a key-variable by narrowing down
+recruitment and box-score metrics. Similarly in (Laufer et al., 2023)
+LASSO was able to significantly reduce computational complexity that
+identified an optimal configuration of motion sensors. However it is
+important to note that LASSO has experienced some limitations in its
+performance ability in variable selection specifically with highly
+correlated variables and complex non-linear interactions. For example in
+(Tarun & Sriramya, 2026), this study used lasso regression against
+XGBoost to determine which methodology proved to be the most accurate at
+predicting fare prices for online cab services which XGBoost
+outperformed LASSO because “LASSO failed to make the grouped selection
+as it only took one variable from a group and ignored the remaining
+variables”(Tarun & Sriramya, 2026). However, despite this specific
+limitation, across multiple studies LASSO proves to be consistent in its
+ability to minimize prediction error and utilize mathematical frameworks
+to isolate key critical variables.
+
+For both regression methods, the regularization parameter () was
+selected using a 10-fold cross validation, ensuring a practical 90/10
+train-test split. Within the function, the dataset is divided into ten
+equally sized subsets, where nine folds are used to train the model
+while the remaining fold is reserved for validation (testing). The
+process is repeated until each fold has served as the validation set
+exactly once, and the resulting validation errors are averaged to
+estimate the model's predictive performance. By evaluating each
+candidate value of the regularization parameter () across all ten folds,
+what is identified is the value that minimizes the cross-validated
+error. The use of 10-fold cross-validation provides a balance between
+computational efficiency and reliable model evaluation, allowing nearly
+all observations to contribute to both model training and validation
+throughout the procedure, without heightened risk of overfitting or
+underfitting.
+
+To evaluate the predictive performance of the Lasso and Ridge regression
+models, RMSE, MAE, and R² were calculated using the cross-validated
+predictions. RMSE and MAE quantify the average prediction error, with
+RMSE placing greater emphasis on larger errors due to the squared error
+term, while MAE provides a measure that is less sensitive to extreme
+observations. R², however, measures the proportion of variation in the
+response variable explained by the model. Lower RMSE and MAE values,
+coupled with a higher R², indicate a model that more effectively
+balances prediction accuracy with the coefficient shrinkage introduced
+through regularization.
+
+The R programming language was the primary software used in this
+analysis. Data for the analysis was sourced from the nflreadr package; a
+repository of NFL data easily accessible within the R environment. For
+data preprocessing, the Python programming language package pandas was
+used within the R environment, as well as the native dplyr package. The
+corrplot, car, and ggplot2 packages were used for the preliminary
+analysis and analysis of the final models. Computation and selection of
+the LASSO and Ridge-based models was completed through use of glmnet.
+
+\
 
 - Detail the models or algorithms used.
 
@@ -162,6 +217,45 @@ $$y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i$$
 - Highlight unexpected patterns or anomalies.
 
 A study was conducted to determine how...
+
+The following features are exhibited within the dataset:
+
+- **player_display_name: Name of quarterback for that observation**
+
+- **season: League year the observation represents**
+
+- **team: NFL franchise played for that year by the quarterback**
+
+- **passing_yards: Total number of yards gained via the respective
+  quarterback’s passing**
+
+- **passing_tds: Total number of touchdowns scored via the respective
+  quarterback’s passing**
+
+- **interceptions: Total number of turnsovers committed via the
+  respective quarterback’s passing**
+
+- **completions: Total number of completed passes via the quarterback**
+
+- **attempts: Total number of attempted passes via the quarterback**
+
+- **passing_epa: Average expected points added per passing play,
+  measuring how much a team's passing offense increases or decreases its
+  expected scoring. Positive values indicate more efficient passing
+  performance**
+
+- **rushing_yards: Total number of yards gained via the respective
+  quarterback’s running**
+
+- **rushing_tds: Total number of touchdowns scored via the respective
+  quarterback’s running**
+
+- **completion_pct: proportion of completion divided by attempts, as a
+  percentage**
+
+- **wins: The sole response variable of our analysis, representing total
+  number of wins the quarterback’s team recorded in the respective
+  season**
 
 ```{r, warning=FALSE, echo=T, message=FALSE}
 # loading packages 
@@ -265,6 +359,66 @@ findings suggest that some passing variables may provide redundant
 information and should be carefully considered during model
 development. 
 
+```{r}
+library(ggplot2)
+
+ggplot(qb_season1, aes(x = passing_yards, y = wins)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(
+    title = "Passing Yards vs. Team Wins",
+    x = "Passing Yards",
+    y = "Team Wins"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(qb_season1, aes(x = passing_tds, y = wins)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(
+    title = "Passing Touchdowns vs. Team Wins",
+    x = "Passing Touchdowns",
+    y = "Team Wins"
+  ) +
+  theme_minimal()
+```
+
+Both scatterplots show that passing yards and passing touchdowns have a
+relative strong positive correlation to team wins. These scatterplots
+show that both variables, passing yards and passing touchdowns have a
+positive effect on team wins. The passing touchdowns versus team wins
+scatterplot shows a stronger relationship with less variability and
+spread in the data comparatively to passing yards versus team wins. The
+conclusion can be made that as passing touchdowns increase, team wins
+also increase and similarly as passing yards increase, team wins
+increase. This conclusion is beneficial in highlightly possible key
+variables that strongly influence team wins. \
+
+```{r}
+VIF_Visualization_Model <- lm(wins ~ passing_yards + passing_tds + interceptions + completions + attempts + passing_epa + rushing_yards + rushing_tds + completion_pct, data = qb_season1)
+library(car)
+VIF_Visualization_Values <- vif(VIF_Visualization_Model)
+VIF_Visualization_Values
+VIF_Visualization_Dataframe <- data.frame(Variable = names(VIF_Visualization_Values), VIF = as.numeric(VIF_Visualization_Values))
+library(ggplot2)
+ggplot(VIF_Visualization_Dataframe, aes(x = reorder(Variable, VIF), y = VIF)) + geom_col(fill = "steelblue") + geom_hline(yintercept = 5, linetype = "dashed", color = "red") + coord_flip() + labs(title = "Variance Inflation Factors (VIFs) of Dataset Predictors", x = "Predictor", y = "VIF") + theme_minimal()
+
+```
+
+Variance Inflation Factors (VIFs) of the predictors against the response
+variable (wins) are modeled based on a simple linear regression created
+for the purposes of this visualization. To combat inflated variances due
+to predictor multicollinearity, a VIF threshold of 5 was used, exhibited
+by the red-dashed line running along the y-axis. Predictors such as
+interceptions, rushing_tds, and rushing_yards satisfy this threshold.
+Although completion_pct, passing_tds, and passing_epa do not meet the
+threshold, they are close enough to at least consider in a final model
+if other evidence supports their inclusion. Completions, attempts, and
+passing_yards, however, indicate such high variances that they should
+likely not be used when refining a model.
+
 ### Modeling and Results
 
 - Explain your data preprocessing and cleaning steps.
@@ -297,12 +451,12 @@ lasso. Journal of the Royal Statistical Society: Series B
 
 Gweon, J. (2024). Comparing different machine learning methods on NFL
 defensive player performance prediction \[Master's report, Kansas State
-University\]. K-State Research Exchange.[
-https://krex.k-state.edu/items/b5cae4fb-f772-42ce-9dad-d7a84094e8bf](https://krex.k-state.edu/items/b5cae4fb-f772-42ce-9dad-d7a84094e8bf) 
+University\]. K-State Research
+Exchange.<https://krex.k-state.edu/items/b5cae4fb-f772-42ce-9dad-d7a84094e8bf> 
 
 Juuri, S. (2023). Predicting the results of NFL games using machine
-learning \[Master's thesis, Aalto University\]. Aaltodoc.[
-https://aaltodoc.aalto.fi/items/8a329777-bdfe-4800-8d8d-d6dc3e75be70](https://aaltodoc.aalto.fi/items/8a329777-bdfe-4800-8d8d-d6dc3e75be70) 
+learning \[Master's thesis, Aalto University\].
+Aaltodoc.<https://aaltodoc.aalto.fi/items/8a329777-bdfe-4800-8d8d-d6dc3e75be70> 
 
 South, C., & Egros, E. (2020). Forecasting college football game
 outcomes using modern modeling techniques. Journal of Sports Analytics,
@@ -327,8 +481,7 @@ the Lasso and Ridge Regression models. Economies, 10(8), 1–21.
 
 Alshqaq, S. S., & Abuzaid, A. H. (2023). An efficient method for
 variable selection based on diagnostic-Lasso regression. Symmetry,
-15(12), 2155.[
-https://doi.org/10.3390/sym15122155](https://doi.org/10.3390/sym15122155)
+15(12), 2155.<https://doi.org/10.3390/sym15122155>
 
 Jana, A., & Hemalatha, S. (2021). Football player performance analysis
 using particle swarm optimization and player value calculation using
