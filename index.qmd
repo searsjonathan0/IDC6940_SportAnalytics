@@ -317,6 +317,21 @@ ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0, nfolds = 10)
 set.seed(123)
 lasso_cv <- cv.glmnet(x_train, y_train, alpha = 1, nfolds = 10)
 
+
+lin_coef <- coef(LinReg)
+
+comparison <- data.frame(
+  Variable = names(lin_coef),
+  Linear = as.numeric(lin_coef),
+  Ridge = as.numeric(coef(ridge_cv, s = "lambda.min")),
+  Lasso = as.numeric(coef(lasso_cv, s = "lambda.min"))
+)
+
+comparison
+
+```
+
+```{r}
 # Prediction utilizing the test set.
 
 ols_pred   <- predict(LinReg, newdata = test)

@@ -2794,29 +2794,58 @@ Important
 <span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>lasso_cv <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(x_train, y_train, <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">nfolds =</span> <span class="dv">10</span>)</span>
 <span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Prediction utilizing the test set.</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>ols_pred   <span class="ot">&lt;-</span> <span class="fu">predict</span>(LinReg, <span class="at">newdata =</span> test)</span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>ridge_pred <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">predict</span>(ridge_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>lasso_pred <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">predict</span>(lasso_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
-<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculation of metrics.</span></span>
-<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="fu">sqrt</span>(<span class="fu">mean</span>((y <span class="sc">-</span> yhat)<span class="sc">^</span><span class="dv">2</span>))</span>
-<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>mae  <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="fu">mean</span>(<span class="fu">abs</span>(y <span class="sc">-</span> yhat))</span>
-<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>r2   <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>((y <span class="sc">-</span> yhat)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>((y <span class="sc">-</span> <span class="fu">mean</span>(y))<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluation based on sought-after metrics.</span></span>
-<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Ridge&quot;</span>, <span class="st">&quot;Lasso&quot;</span>)</span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="at">RMSE  =</span> <span class="fu">c</span>(<span class="fu">rmse</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="at">MAE =</span> <span class="fu">c</span>(<span class="fu">mae</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="at">R2 =</span> <span class="fu">c</span>(<span class="fu">r2</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, lasso_pred)))</span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>lin_coef <span class="ot">&lt;-</span> <span class="fu">coef</span>(LinReg)</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(lin_coef),</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">Linear =</span> <span class="fu">as.numeric</span>(lin_coef),</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ridge =</span> <span class="fu">as.numeric</span>(<span class="fu">coef</span>(ridge_cv, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>)),</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">Lasso =</span> <span class="fu">as.numeric</span>(<span class="fu">coef</span>(lasso_cv, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>comparison</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Variable      Linear       Ridge       Lasso
+1     (Intercept) -0.01573708 -0.01472704 -0.01682555
+2   passing_yards -0.47432000  0.04181373  0.00000000
+3     passing_tds  0.25476429  0.19106509  0.20969351
+4   interceptions -0.05499321 -0.07708342  0.00000000
+5     completions  0.02062687  0.06327970  0.04271923
+6        attempts  0.43649750  0.05436861  0.00000000
+7     passing_epa  0.47045976  0.27886610  0.37355993
+8   rushing_yards  0.01353749  0.02800684  0.00000000
+9     rushing_tds  0.08925068  0.07684649  0.05125273
+10 completion_pct  0.06128560  0.07081332  0.02196641</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prediction utilizing the test set.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>ols_pred   <span class="ot">&lt;-</span> <span class="fu">predict</span>(LinReg, <span class="at">newdata =</span> test)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>ridge_pred <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">predict</span>(ridge_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>lasso_pred <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">predict</span>(lasso_cv, <span class="at">newx =</span> x_test, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculation of metrics.</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>rmse <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="fu">sqrt</span>(<span class="fu">mean</span>((y <span class="sc">-</span> yhat)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>mae  <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="fu">mean</span>(<span class="fu">abs</span>(y <span class="sc">-</span> yhat))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>r2   <span class="ot">&lt;-</span> <span class="cf">function</span>(y, yhat) <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>((y <span class="sc">-</span> yhat)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">sum</span>((y <span class="sc">-</span> <span class="fu">mean</span>(y))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluation based on sought-after metrics.</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Ridge&quot;</span>, <span class="st">&quot;Lasso&quot;</span>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="at">RMSE  =</span> <span class="fu">c</span>(<span class="fu">rmse</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="at">MAE =</span> <span class="fu">c</span>(<span class="fu">mae</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="at">R2 =</span> <span class="fu">c</span>(<span class="fu">r2</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, lasso_pred)))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Model      RMSE       MAE        R2
