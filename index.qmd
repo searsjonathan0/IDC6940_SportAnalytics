@@ -210,52 +210,94 @@ $$y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i$$
 
 ### Data Exploration and Visualization
 
+A study was conducted to determine how quarterback (QB) season
+statistics correlates with how many wins a team has in that season. To
+determine how QB statistics correlates with team wins in a season, the
+dataset was created using publicly available NFL data accessed through
+the R package [nflreadr]{.underline}. Weekly quarterback player
+statistics and NFL game schedules were collected for the 2015 through
+2024 regular seasons.
+
+Quarterback performance data were obtained using the
+`load_player_stats()` function. The dataset was filtered to include only
+players whose position was quarterback (QB). Weekly statistics were then
+aggregated into season-level totals for each quarterback and team. The
+aggregated variables included passing yards, passing touchdowns,
+interceptions, completions, pass attempts, passing EPA (Expected Points
+Added), rushing yards, and rushing touchdowns. In addition, completion
+percentage was calculated by dividing total completions by total pass
+attempts and multiplying by 100.
+
+Team performance data were collected using the `load_schedules()`
+function. Only regular-season games were included by filtering for
+`game_type == "REG"`. Wins were calculated separately for home and away
+teams by comparing the final scores of each game. Home and away wins
+were then combined to compute each team's total number of regular-season
+victories for every season from 2015 through 2024.
+
+The team win totals were merged with the quarterback season statistics
+using season and team as matching variables. Finally, quarterbacks with
+fewer than 200 pass attempts in a season were removed to ensure that the
+analysis included only quarterbacks with substantial playing time,
+reducing the influence of backup quarterbacks and small sample sizes.
+
+The final dataset contains one observation for each qualifying
+quarterback-season and includes both individual performance statistics
+and the corresponding team's regular-season win total. The description
+of variables are listed below in the chart.
+
+```{r}
+library(dplyr)
+library(knitr)
+
+variable_table <- data.frame(
+  Variable = c(
+    "passing_yards",
+    "passing_tds",
+    "interceptions",
+    "completions",
+    "attempts",
+    "passing_epa",
+    "rushing_yards",
+    "rushing_tds",
+    "completion_pct",
+    "wins"
+  ),
+  Description = c(
+    "Total number of passing yards recorded by the quarterback during the season.",
+    "Total number of passing touchdowns thrown by the quarterback during the season.",
+    "Total number of interceptions thrown by the quarterback during the season.",
+    "Total number of completed passes by the quarterback during the season.",
+    "Total number of pass attempts by the quarterback during the season.",
+    "Total Expected Points Added (EPA) generated through passing plays during the season.",
+    "Total number of rushing yards gained by the quarterback during the season.",
+    "Total number of rushing touchdowns scored by the quarterback during the season.",
+    "Completion percentage, calculated as (completions ÷ attempts) × 100.",
+    "Total number of regular-season wins recorded by the quarterback's team (response variable)."
+  ),
+  Type = c(
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Response"
+  )
+)
+
+kable(variable_table,
+      caption = "Description of Variables Used in the Analysis")
+```
+
 - Describe your data sources and collection process.
 
 - Present initial findings and insights through visualizations.
 
 - Highlight unexpected patterns or anomalies.
-
-A study was conducted to determine how...
-
-The following features are exhibited within the dataset:
-
-- **player_display_name: Name of quarterback for that observation**
-
-- **season: League year the observation represents**
-
-- **team: NFL franchise played for that year by the quarterback**
-
-- **passing_yards: Total number of yards gained via the respective
-  quarterback’s passing**
-
-- **passing_tds: Total number of touchdowns scored via the respective
-  quarterback’s passing**
-
-- **interceptions: Total number of turnsovers committed via the
-  respective quarterback’s passing**
-
-- **completions: Total number of completed passes via the quarterback**
-
-- **attempts: Total number of attempted passes via the quarterback**
-
-- **passing_epa: Average expected points added per passing play,
-  measuring how much a team's passing offense increases or decreases its
-  expected scoring. Positive values indicate more efficient passing
-  performance**
-
-- **rushing_yards: Total number of yards gained via the respective
-  quarterback’s running**
-
-- **rushing_tds: Total number of touchdowns scored via the respective
-  quarterback’s running**
-
-- **completion_pct: proportion of completion divided by attempts, as a
-  percentage**
-
-- **wins: The sole response variable of our analysis, representing total
-  number of wins the quarterback’s team recorded in the respective
-  season**
 
 ```{r, warning=FALSE, echo=T, message=FALSE}
 # loading packages 
@@ -362,27 +404,11 @@ development. 
 ```{r}
 library(ggplot2)
 
-ggplot(qb_season1, aes(x = passing_yards, y = wins)) +
-  geom_point(alpha = 0.7, size = 2) +
-  geom_smooth(method = "lm", se = TRUE, color = "blue") +
-  labs(
-    title = "Passing Yards vs. Team Wins",
-    x = "Passing Yards",
-    y = "Team Wins"
-  ) +
-  theme_minimal()
+ggplot(qb_season1, aes(x = passing_tds, y = wins)) + geom_point(alpha = 0.7) + geom_smooth(method = "lm",color = "red") + labs(x="Passing touchdowns", y="Team wins", title = "Passing touchdowns vs team wins")
 ```
 
 ```{r}
-ggplot(qb_season1, aes(x = passing_tds, y = wins)) +
-  geom_point(alpha = 0.7, size = 2) +
-  geom_smooth(method = "lm", color = "red", se = TRUE) +
-  labs(
-    title = "Passing Touchdowns vs. Team Wins",
-    x = "Passing Touchdowns",
-    y = "Team Wins"
-  ) +
-  theme_minimal()
+ggplot(qb_season1, aes(x = passing_yards, y = wins)) + geom_point(alpha = 0.7) + geom_smooth(method = "lm") + labs(x="Passing yards", y="Team wins", title = "Passing yards vs team wins")
 ```
 
 Both scatterplots show that passing yards and passing touchdowns have a
@@ -420,6 +446,48 @@ passing_yards, however, indicate such high variances that they should
 likely not be used when refining a model.
 
 ### Modeling and Results
+
+After collecting the quarterback and team data, several preprocessing
+steps were performed to prepare the dataset for analysis.
+
+First, weekly quarterback statistics were aggregated into season-level
+totals for each quarterback and team from the 2015–2024 NFL regular
+seasons. Team regular-season win totals were calculated separately from
+the schedule data by summing home and away victories and then merged
+with the quarterback statistics using the season and team as matching
+variables.
+
+A new variable, **completion percentage**, was created by dividing total
+completions by total pass attempts and multiplying by 100. This provided
+an additional measure of passing efficiency beyond the raw completion
+and attempt totals.
+
+To ensure that only quarterbacks with meaningful playing time were
+included, seasons in which a quarterback attempted fewer than 200 passes
+were removed from the dataset. This filtering step reduced the influence
+of backup quarterbacks and players with limited appearances whose
+statistics may not be representative of a full season.
+
+Variables that were not used as predictors, including the quarterback's
+name, season, and team, were removed before model development. The
+remaining dataset consisted of nine predictor variables: passing yards,
+passing touchdowns, interceptions, completions, pass attempts, passing
+EPA, rushing yards, rushing touchdowns, and completion percentage. The
+response variable was the team's total number of regular-season wins.
+
+Before fitting the predictive models, the predictor variables were
+standardized so that each feature had a mean of zero and a standard
+deviation of one. Standardization places variables measured on different
+scales onto a common scale, improving model performance and ensuring
+that variables with larger numerical ranges do not disproportionately
+influence the results, particularly for regularization methods such as
+Ridge and LASSO regression.
+
+Finally, the cleaned dataset was randomly partitioned into training and
+testing sets using an 80/20 split. The training set, containing 80% of
+the observations, was used to fit and tune the predictive models, while
+the remaining 20% served as an independent test set for evaluating model
+performance on unseen data.
 
 - Explain your data preprocessing and cleaning steps.
 
