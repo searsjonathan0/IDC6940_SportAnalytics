@@ -22,33 +22,116 @@ Slides: [slides.html](slides.html){target="_blank"}
 
 ## Introduction
 
-Under the stadium lights, the smell of popcorn and hot dogs and the band playing the “Fight Song” as one final play runs the last 3 seconds of the 4th quarter, that is the aesthetic of an American Football game. Fans come together to support, cheer and hope for their team's victory. But what if fans or people in general had the ability to go into a match where they could predict the outcome? Being able to predict outcomes in the National Football League (NFL) requires many different features and data such as home field advantage, player performance, team statistics, and game conditions which can cause “multicollinearity”. Multicollinearity is the negative impact on the least square estimator in regression due to correlation between variables [@mcdonald2009ridge]. 
+Under the stadium lights, the smell of popcorn and hot dogs and the band playing the “Fight Song” as one final play runs the last 3 seconds of the 4th quarter, that is the aesthetic of an American Football game. Fans come together to support, cheer and hope for their team's victory. But what if fans or people in general had the ability to go into a match where they could predict the outcome? Being able to predict outcomes in the National Football League (NFL) through mult-dimensional data requires many different features and data such as home field advantage, player performance, team statistics, and game conditions which can cause multicollinearity, being a negative impact on the least square estimator in regression due to correlation between variables [@mcdonald2009ridge]. 
 
-With the implementation of a machine learning regression model such as Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we can simplify the variables and focus only on the important aspects that help to accurately predict wins. Lasso uses a shrinkage technique called L1 regularization where it zeros out the least important variables, leaving only variables that are optimal for accurate prediction. Ridge regression uses a shrinkage technique called L2 regularization where it helps reduce multicollinearity without removing variables from the original set of independent variables. This helps with some of the distortion of the predictors. 
+With the implementation of a machine learning regression model such as Lasso  (Least Absolute Shrinkage and Selection Operator), and Ridge we can simplify the variables and focus only on the important aspects that help to accurately predict wins. Both methods solve a modified optimization problem of the form:
 
-Previous research examining LASSO regression has consistently demonstrated its usefulness in datasets containing large numbers of predictors and correlated variables. Across applications in sports analytics, genetics, and other predictive modeling fields, LASSO has been shown to improve model interpretability by shrinking insignificant coefficients toward zero while retaining the most influential predictors [@bhattacharyya2025lasso; @jana2021football; @lockhart2014lasso]. Such reduces model complexity and can improve predictive performance compared to traditional regression methods [@alshqaq2023diagnostic; @bhattacharyya2025lasso; @lockhart2014lasso]. Studies have also shown that regularization techniques such as Ridge regression can effectively address multicollinearity by reducing coefficient variance without removing predictors from the model. One limitation discussed within the literature is that highly correlated variables can influence LASSO's variable selection process, potentially causing relevant predictors to be excluded [@lockhart2014lasso]. Overall, the findings suggest that regularized regression methods provide a useful framework for prediction problems involving numerous and potentially correlated variables, making them applicable to NFL team performance analysis.
+\hat{\boldsymbol{\beta}}
+=
+\arg\min_{\boldsymbol{\beta}}
+\left\{
+\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2
++
+\lambda P(\boldsymbol{\beta})
+\right\}
 
-The main goal of this report is to examine the impact of multicollinearity on predicting NFL team success and to examine whether regularized regression models are better than a linear regression model. This will be seen by comparing a linear regression, Ridge regression, and Lasso regression ability to predict the number of regular-season wins by an NFL team using that team’s quarterback's performance statistics. Some of the predictor variables are the quarterback’s season passing yards, touchdowns, interceptions and passing expected points  added (EPA), a metric that measures how many net points a quarterback adds to their team's scoring potential on passing plays, compared to the league-average expectation for any given down, distance, and field position. This report will also aim to find which quarterback performance statistics are most influential in predicting team performance. Understanding the impact of a quarterback’s performance on a team's success and the most influential quarterback performance statistics provide valuable information for NFL analysts, coaches, and teams trying to find players that contribute to team success and improve team performance.
+where \hat{\boldsymbol{\beta}} represents the estimated coefficient vector, \arg\min_{\boldsymbol{\beta}} represents the values of \boldsymbol{\beta} that minimize the objective function, \mathbf{y} represents the observed response vector, \mathbf{X} represents the design matrix of predictor variables, \boldsymbol{\beta} represents the regression coefficient vector, \|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2 represents the residual sum of squares, \lambda represents the regularization parameter controlling the strength of the penalty, and P(\boldsymbol{\beta}) represents the penalty function applied to the coefficients.
+
+The difference between LASSO and Ridge regression comes from how their penalties are calculated mathematically. Lasso uses a shrinkage technique called L1 regularization, where it zeros out the least important variables, leaving only variables that are optimal for accurate prediction. Ridge regression uses a shrinkage technique called L2 regularization where it helps reduce multicollinearity without removing variables from the original set of independent variables. This helps with some of the distortion of the predictors. Another area where ridge differs from LASSO is that in the end and final model, ridge retains all variables . LASSO is a “step-up” from ridge allowing for key variable selection, where ridge can struggle with its limitations due to retention of all variables. This highlights that LASSO’s ability to produce a subset of “key-variables” from a high-dimensional dataset, makes it highly efficient.
+
+Previous research examining LASSO regression has consistently demonstrated its usefulness in datasets containing large numbers of predictors and correlated variables. Across applications in credit risks awareness (Geraldo-Campos et al., 2022), genetics, and other predictive modeling fields, LASSO has been shown to improve model interpretability by shrinking insignificant coefficients toward zero while retaining the most influential predictors [@bhattacharyya2025lasso; @jana2021football; @lockhart2014lasso]. Sports outcomes in LASSO include ability to identify home-field advantage as a key-variable by narrowing down recruitment and box-score metrics (South & Egros, 2020). Similarly, LASSO was utilized to significantly reduce computational complexity that identified an optimal configuration of motion sensors (Laufer et al., 2023). Such reduces model complexity and can improve predictive performance compared to traditional regression methods [@alshqaq2023diagnostic; @bhattacharyya2025lasso; @lockhart2014lasso]. Studies have also shown that regularization techniques such as Ridge regression can effectively address multicollinearity by reducing coefficient variance without removing predictors from the model. One limitation discussed within the literature is that highly correlated variables can influence LASSO's variable selection process, potentially causing relevant predictors to be excluded [@lockhart2014lasso]. Overall, the findings suggest that regularized regression methods provide a useful framework for prediction problems involving numerous and potentially correlated variables, making them applicable to NFL team performance analysis.
+
+It is important to note, however, that LASSO has experienced some limitations in its performance ability in variable selection specifically with highly correlated variables and complex non-linear interactions. For example, lasso regression was compared against XGBoost to determine which methodology proved to be the most accurate at predicting fare prices for online cab services, in which XGBoost outperformed LASSO because “LASSO failed to make the grouped selection as it only took one variable from a group and ignored the remaining variables,” (Tarun & Sriramya, 2026). Despite this specific limitation, across multiple studies LASSO proves to be consistent in its ability to minimize prediction error and utilize mathematical frameworks to isolate key critical variables.
+
+The main goal of this report is to examine the impact of multicollinearity on predicting NFL team success and to examine whether regularized regression models are better than a linear regression model. This will be seen by comparing a standard linear regression, Ridge regression, and Lasso regression ability to predict the number of regular-season wins by an NFL team using that team’s quarterback's performance statistics. Predictor variables include a quarterback’s season standard statistics, as well as expected points added (EPA), a metric that measures how many net points a quarterback adds to their team's scoring potential on passing plays, compared to the league-average expectation for any given down, distance, and field position. This report will also aim to find which quarterback performance statistics are most influential in predicting team performance. Understanding the impact of a quarterback’s performance on a team's success and the most influential quarterback performance statistics provide valuable information for NFL analysts, coaches, and teams trying to find players that contribute to team success and improve team performance.
 
 ## Methods
 
-Will update the methods this week. 7/7 JS
+Following base cleaning of the data, numerical values were scaled to a mean of 0 and a standard deviation of 1. The data were standardized based upon:
 
-Across various predictive modeling applications ranging to sports outcomes in (South & Egros, 2020), sensor organization to ensure optimization (Laufer et al., 2023) and credit risks awareness in (Geraldo-Campos et al., 2022) LASSO, least absolute shrinkage and selection operator and ridge regression are both linear regression technique and methodologies that are designed to handle multicollinearity and mult-dimensional data. Both of these methodologies use a shrinkage tool that penalizes the regression coefficients. Both methods solve a modified optimization problem of the form:
+x_{ij}^{\text{scaled}} = \frac{x_{ij} - \mu_j}{\sigma_j}
 
-\
+where x_{ij} represents value of feature j for observation i, \mu_j represents mean of feature j, and \sigma_j represents standard deviation of feature j.
 
-where y is the response vector, X is the matrix of predictors, is the vector of the coefficients, P()is the penalty term, and 0 is the regularization parameter controlling the strength of the penalty. 
+A standard linear regression is used as a baseline, calculated by:
 
-However, the difference between LASSO and Ridge regression comes from how their penalties are calculated mathematically. LASSO uses a L1 penalty norm, which shrinks the least important variables in the dataset to zero which allows for the selection of key effective variables 
+y_i = \beta_0 + \sum_{j=1}^{p}\beta_j x_{ij} + \epsilon_i
 
-(P()=j-1pj). Ridge regression uses a L2 penalty norm, which shrinks parameters close to zero reducing the variance (P()= j=1pj2) but where ridge differs from LASSO is that in the end and final model, ridge retains all variables . LASSO is a “step-up” from ridge allowing for key variable selection, where ridge can struggle with its limitations due to retention of all variables. This highlights that LASSO’s ability to produce a subset of “key-variables” from a high-dimensional dataset, makes it highly efficient. 
+where y_i represents the observed response for observation i, \beta_0 represents the intercept term, x_{ij} represents the value of predictor variable j for observation i, \beta_j represents the coefficient associated with predictor j
+{p} represents the number of predictor variables, and \epsilon_i represents the random error term for observation i.
 
-For example, sports outcomes in (South & Egros, 2020), LASSO was able to identify home-field advantage as a key-variable by narrowing down recruitment and box-score metrics. Similarly in (Laufer et al., 2023) LASSO was able to significantly reduce computational complexity that identified an optimal configuration of motion sensors. However it is important to note that LASSO has experienced some limitations in its performance ability in variable selection specifically with highly correlated variables and complex non-linear interactions. For example in (Tarun & Sriramya, 2026), this study used lasso regression against XGBoost to determine which methodology proved to be the most accurate at predicting fare prices for online cab services which XGBoost outperformed LASSO because “LASSO failed to make the grouped selection as it only took one variable from a group and ignored the remaining variables”(Tarun & Sriramya, 2026). However, despite this specific limitation, across multiple studies LASSO proves to be consistent in its ability to minimize prediction error and utilize mathematical frameworks to isolate key critical variables.
+For the lasso and ridge regression methods, the regularization parameter (\lambda) was selected using a 10-fold cross validation, defined as:
 
-For both regression methods, the regularization parameter (\lambda) was selected using a 10-fold cross validation, defined as \mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k, ensuring a practical 90/10 train-test split. Within the function, the dataset is divided into ten equally sized subsets, where nine folds are used to train the model while the remaining fold is reserved for validation (testing). The process is repeated until each fold has served as the validation set exactly once, and the resulting validation errors are averaged to estimate the model's predictive performance. By evaluating each candidate value of the regularization parameter (\lambda) across all ten folds, what is identified is the value that minimizes the cross-validated error. The use of 10-fold cross-validation provides a balance between computational efficiency and reliable model evaluation, allowing nearly all observations to contribute to both model training and validation throughout the procedure, without heightened risk of overfitting or underfitting.
+\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k
 
-To evaluate the predictive performance of the Lasso and Ridge regression models, RMSE, MAE, and R² were calculated using the cross-validated predictions. RMSE and MAE quantify the average prediction error, with RMSE placing greater emphasis on larger errors due to the squared error term, while MAE provides a measure that is less sensitive to extreme observations. R², however, measures the proportion of variation in the response variable explained by the model. Lower RMSE and MAE values, coupled with a higher R², indicate a model that more effectively balances prediction accuracy with the coefficient shrinkage introduced through regularization.
+ensuring a practical 90/10 train-test split, a common approach for numerical datasets of less than 1000 observations. Within the function, the dataset is divided into ten equally sized subsets, where nine folds are used to train the model while the remaining fold is reserved for validation (testing). The process is repeated until each fold has served as the validation set exactly once, and the resulting validation errors are averaged to estimate the model's predictive performance. By evaluating each candidate value of the regularization parameter (\lambda) across all ten folds, what is identified is the value that minimizes the cross-validated error. The use of 10-fold cross-validation provides a balance between computational efficiency and reliable model evaluation, allowing nearly all observations to contribute to both model training and validation throughout the procedure, without heightened risk of overfitting or underfitting.
+
+The lasso regression equation upon the data was calculated by:
+
+\hat{\boldsymbol{\beta}}
+=
+\arg\min_{\boldsymbol{\beta}}
+\left\{
+\sum_{i=1}^{n}
+\left(
+y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
+\right)^2
++
+\lambda\sum_{j=1}^{p}|\beta_j|
+\right\}
+
+where \hat{\boldsymbol{\beta}} represents the estimated coefficient vector, \lambda represents the regularization parameter, and \lambda \sum_{j=1}^{p}|\beta_j| representing the L1 penalty.
+
+The ridge regression equation upon the data was calculated by:
+
+\hat{\boldsymbol{\beta}}
+=
+\arg\min_{\boldsymbol{\beta}}
+\left\{
+\sum_{i=1}^{n}
+\left(
+y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
+\right)^2
++
+\lambda\sum_{j=1}^{p}\beta_j^2
+\right\}
+
+where \lambda \sum_{j=1}^{p}\beta_j^2 represents the L2 penalty.
+
+To evaluate the predictive performance of the Lasso and Ridge regression models, RMSE, MAE, and R² were calculated using the cross-validated predictions. RMSE and MAE quantify the average prediction error, with RMSE placing greater emphasis on larger errors due to the squared error term. RMSE is represented by:
+
+\mathrm{RMSE}
+=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(y_i-\hat{y}_i)^2
+}
+
+where n represents the number of observations, y_i represents the observed response value for observation i, \hat{y}_i represents the predicted response value for observation i, and y_i-\hat{y}_i represents the prediction error.
+
+MAE provides a measure that is less sensitive to extreme observations, represented by:
+
+\mathrm{MAE}
+=
+\frac{1}{n}
+\sum_{i=1}^{n}
+|y_i-\hat{y}_i|
+
+R², however, measures the proportion of variation in the response variable explained by the model, represented by:
+
+R^2
+=
+1-
+\frac{
+\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+}{
+\sum_{i=1}^{n}(y_i-\bar{y})^2
+}
+
+where \bar{y} represents the mean of the observed response values, \sum_{i=1}^{n}(y_i-\hat{y}_i)^2 represents the residual sum of squares, and \sum_{i=1}^{n}(y_i-\bar{y})^2 represents the total sum of squares.
+
+Lower RMSE and MAE values, coupled with a higher R², indicate a model that more effectively balances prediction accuracy with the coefficient shrinkage introduced through regularization.
 
 The R programming language was the primary software used in this analysis. Data for the analysis was sourced from the nflreadr package; a repository of NFL data easily accessible within the R environment. For data preprocessing, the Python programming language package pandas was used within the R environment, as well as the native dplyr package. The corrplot, car, and ggplot2 packages were used for the preliminary analysis and analysis of the final models. Computation and selection of the LASSO and Ridge-based models was completed through use of glmnet.
 
@@ -56,7 +139,7 @@ The R programming language was the primary software used in this analysis. Data 
 
 ## Analysis and Results
 
-### Data Exploration and Visualization
+### Data Description and Visualization
 
 A study was conducted to determine how quarterback (QB) season statistics correlates with how many wins a team has in that season. To determine how QB statistics correlates with team wins in a season, the dataset was created using publicly available NFL data accessed through the R package [nflreadr]{.underline}. Weekly quarterback player statistics and NFL game schedules were collected for the 2015 through 2024 regular seasons.
 
@@ -232,7 +315,7 @@ ggplot(VIF_Visualization_Dataframe, aes(x = reorder(Variable, VIF), y = VIF)) + 
 
 Variance Inflation Factors (VIFs) of the predictors against the response variable (wins) are modeled based on a simple linear regression created for the purposes of this visualization. To combat inflated variances due to predictor multicollinearity, a VIF threshold of 5 was used, exhibited by the red-dashed line running along the y-axis. Predictors such as interceptions, rushing_tds, and rushing_yards satisfy this threshold. Although completion_pct, passing_tds, and passing_epa do not meet the threshold, they are close enough to at least consider in a final model if other evidence supports their inclusion. Completions, attempts, and passing_yards, however, indicate such high variances that they should likely not be used when refining a model.
 
-### Modeling and Results
+### Statistical Modeling
 
 After collecting the quarterback and team data, several preprocessing steps were performed to prepare the dataset for analysis.
 
@@ -317,6 +400,7 @@ R2 = c(r2(test$wins, ols_pred), r2(test$wins, ridge_pred), r2(test$wins, lasso_p
 
 results
 ```
+## Conclusion
 
 ## References
 
