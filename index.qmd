@@ -156,8 +156,10 @@ $$y_i = \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \epsilon_i$$
 where $y_i$ represents the observed response for observation i,
 $\beta_0$ represents the intercept term, $x_{ij}$ represents the value
 of predictor variable j for observation i, $\beta_j$ represents the
-coefficient associated with predictor, $j$ represents the index of the predictor variables, and $p$ represents the total number of predictor variables, and $\epsilon_i$ represents the random error term
-for observation i.
+coefficient associated with predictor, $j$ represents the index of the
+predictor variables, and $p$ represents the total number of predictor
+variables, and $\epsilon_i$ represents the random error term for
+observation i.
 
 For the lasso and ridge regression methods, the regularization parameter
 ($\lambda$) was selected using a 10-fold cross validation, defined as:
@@ -516,7 +518,7 @@ the schedule data by summing home and away victories and then merged
 with the quarterback statistics using the season and team as matching
 variables.
 
-A new variable, **completion percentage**, was created by dividing total
+A new variable, completion percentage, was created by dividing total
 completions by total pass attempts and multiplying by 100. This provided
 an additional measure of passing efficiency beyond the raw completion
 and attempt totals.
@@ -607,6 +609,17 @@ r2   <- function(y, yhat) 1 - sum((y - yhat)^2) / sum((y - mean(y))^2)
 
 # Evaluation based on sought-after metrics.
 
+lin_coef <- coef(LinReg)
+
+comparison <- data.frame(
+  Variable = names(lin_coef),
+  Linear = as.numeric(lin_coef),
+  Ridge = as.numeric(coef(ridge_cv, s = "lambda.min")),
+  Lasso = as.numeric(coef(lasso_cv, s = "lambda.min"))
+)
+kable(comparison, caption = "Comparison of Linear, Ridge, and Lasso Regression Coefficients")
+
+
 results <- data.frame(Model = c("OLS", "Ridge", "Lasso")
 ,
 RMSE  = c(rmse(test$wins, ols_pred), rmse(test$wins, ridge_pred), rmse(test$wins, lasso_pred))
@@ -615,7 +628,7 @@ MAE = c(mae(test$wins, ols_pred), mae(test$wins, ridge_pred), mae(test$wins, las
 ,
 R2 = c(r2(test$wins, ols_pred), r2(test$wins, ridge_pred), r2(test$wins, lasso_pred)))
 
-results
+kable(results, caption = "Comparison of RMSE, MAE, and R2" )
 ```
 
 ## Conclusion

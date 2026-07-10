@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jonathan Sears, Jasmine Cole, Noah Miller">
-<meta name="dcterms.date" content="2026-07-09">
+<meta name="dcterms.date" content="2026-07-10">
 
 <title>Applying Lasso/Ridge Regression Upon NFL Data</title>
 <style>
@@ -2385,7 +2385,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 9, 2026</p>
+      <p class="date">July 10, 2026</p>
     </div>
   </div>
   
@@ -2776,7 +2776,7 @@ y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
 <h3 class="anchored" data-anchor-id="statistical-modeling">Statistical Modeling</h3>
 <p>After collecting the quarterback and team data, several preprocessing steps were performed to prepare the dataset for analysis.</p>
 <p>First, weekly quarterback statistics were aggregated into season-level totals for each quarterback and team from the 2015–2024 NFL regular seasons. Team regular-season win totals were calculated separately from the schedule data by summing home and away victories and then merged with the quarterback statistics using the season and team as matching variables.</p>
-<p>A new variable, <strong>completion percentage</strong>, was created by dividing total completions by total pass attempts and multiplying by 100. This provided an additional measure of passing efficiency beyond the raw completion and attempt totals.</p>
+<p>A new variable, completion percentage, was created by dividing total completions by total pass attempts and multiplying by 100. This provided an additional measure of passing efficiency beyond the raw completion and attempt totals.</p>
 <p>To ensure that only quarterbacks with meaningful playing time were included, seasons in which a quarterback attempted fewer than 200 passes were removed from the dataset. This filtering step reduced the influence of backup quarterbacks and players with limited appearances whose statistics may not be representative of a full season.</p>
 <p>Variables that were not used as predictors, including the quarterback’s name, season, and team, were removed before model development. The remaining dataset consisted of nine predictor variables: passing yards, passing touchdowns, interceptions, completions, pass attempts, passing EPA, rushing yards, rushing touchdowns, and completion percentage. The response variable was the team’s total number of regular-season wins.</p>
 <p>Before fitting the predictive models, the predictor variables were standardized so that each feature had a mean of zero and a standard deviation of one. Standardization places variables measured on different scales onto a common scale, improving model performance and ensuring that variables with larger numerical ranges do not disproportionately influence the results, particularly for regularization methods such as Ridge and LASSO regression.</p>
@@ -2842,21 +2842,135 @@ y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
 <span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluation based on sought-after metrics.</span></span>
 <span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Ridge&quot;</span>, <span class="st">&quot;Lasso&quot;</span>)</span>
-<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="at">RMSE  =</span> <span class="fu">c</span>(<span class="fu">rmse</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
-<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="at">MAE =</span> <span class="fu">c</span>(<span class="fu">mae</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
-<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>,</span>
-<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a><span class="at">R2 =</span> <span class="fu">c</span>(<span class="fu">r2</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, lasso_pred)))</span>
-<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>lin_coef <span class="ot">&lt;-</span> <span class="fu">coef</span>(LinReg)</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">Variable =</span> <span class="fu">names</span>(lin_coef),</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">Linear =</span> <span class="fu">as.numeric</span>(lin_coef),</span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">Ridge =</span> <span class="fu">as.numeric</span>(<span class="fu">coef</span>(ridge_cv, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>)),</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">Lasso =</span> <span class="fu">as.numeric</span>(<span class="fu">coef</span>(lasso_cv, <span class="at">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(comparison, <span class="at">caption =</span> <span class="st">&quot;Comparison of Linear, Ridge, and Lasso Regression Coefficients&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>  Model      RMSE       MAE        R2
-1   OLS 0.6602413 0.5299639 0.5885157
-2 Ridge 0.6667339 0.5370944 0.5803830
-3 Lasso 0.6692499 0.5389244 0.5772101</code></pre>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Comparison of Linear, Ridge, and Lasso Regression Coefficients</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: right;">Linear</th>
+<th style="text-align: right;">Ridge</th>
+<th style="text-align: right;">Lasso</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-0.0157371</td>
+<td style="text-align: right;">-0.0147270</td>
+<td style="text-align: right;">-0.0168256</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">passing_yards</td>
+<td style="text-align: right;">-0.4743200</td>
+<td style="text-align: right;">0.0418137</td>
+<td style="text-align: right;">0.0000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">passing_tds</td>
+<td style="text-align: right;">0.2547643</td>
+<td style="text-align: right;">0.1910651</td>
+<td style="text-align: right;">0.2096935</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">interceptions</td>
+<td style="text-align: right;">-0.0549932</td>
+<td style="text-align: right;">-0.0770834</td>
+<td style="text-align: right;">0.0000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">completions</td>
+<td style="text-align: right;">0.0206269</td>
+<td style="text-align: right;">0.0632797</td>
+<td style="text-align: right;">0.0427192</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">attempts</td>
+<td style="text-align: right;">0.4364975</td>
+<td style="text-align: right;">0.0543686</td>
+<td style="text-align: right;">0.0000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">passing_epa</td>
+<td style="text-align: right;">0.4704598</td>
+<td style="text-align: right;">0.2788661</td>
+<td style="text-align: right;">0.3735599</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rushing_yards</td>
+<td style="text-align: right;">0.0135375</td>
+<td style="text-align: right;">0.0280068</td>
+<td style="text-align: right;">0.0000000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rushing_tds</td>
+<td style="text-align: right;">0.0892507</td>
+<td style="text-align: right;">0.0768465</td>
+<td style="text-align: right;">0.0512527</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">completion_pct</td>
+<td style="text-align: right;">0.0612856</td>
+<td style="text-align: right;">0.0708133</td>
+<td style="text-align: right;">0.0219664</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Ridge&quot;</span>, <span class="st">&quot;Lasso&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="at">RMSE  =</span> <span class="fu">c</span>(<span class="fu">rmse</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">rmse</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="at">MAE =</span> <span class="fu">c</span>(<span class="fu">mae</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">mae</span>(test<span class="sc">$</span>wins, lasso_pred))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="at">R2 =</span> <span class="fu">c</span>(<span class="fu">r2</span>(test<span class="sc">$</span>wins, ols_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, ridge_pred), <span class="fu">r2</span>(test<span class="sc">$</span>wins, lasso_pred)))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(results, <span class="at">caption =</span> <span class="st">&quot;Comparison of RMSE, MAE, and R2&quot;</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Comparison of RMSE, MAE, and R2</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">RMSE</th>
+<th style="text-align: right;">MAE</th>
+<th style="text-align: right;">R2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OLS</td>
+<td style="text-align: right;">0.6602413</td>
+<td style="text-align: right;">0.5299639</td>
+<td style="text-align: right;">0.5885157</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ridge</td>
+<td style="text-align: right;">0.6667339</td>
+<td style="text-align: right;">0.5370944</td>
+<td style="text-align: right;">0.5803830</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lasso</td>
+<td style="text-align: right;">0.6692499</td>
+<td style="text-align: right;">0.5389244</td>
+<td style="text-align: right;">0.5772101</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </section>
