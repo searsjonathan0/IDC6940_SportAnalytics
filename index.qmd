@@ -312,63 +312,11 @@ quarterback-season and includes both individual performance statistics
 and the corresponding team's regular-season win total. The description
 of variables are listed below in the chart.
 
-```{r}
-library(dplyr)
-library(knitr)
-
-variable_table <- data.frame(
-  Variable = c(
-    "passing_yards",
-    "passing_tds",
-    "interceptions",
-    "completions",
-    "attempts",
-    "passing_epa",
-    "rushing_yards",
-    "rushing_tds",
-    "completion_pct",
-    "wins"
-  ),
-  Description = c(
-    "Total number of passing yards recorded by the quarterback during the season.",
-    "Total number of passing touchdowns thrown by the quarterback during the season.",
-    "Total number of interceptions thrown by the quarterback during the season.",
-    "Total number of completed passes by the quarterback during the season.",
-    "Total number of pass attempts by the quarterback during the season.",
-    "Total Expected Points Added (EPA) generated through passing plays during the season.",
-    "Total number of rushing yards gained by the quarterback during the season.",
-    "Total number of rushing touchdowns scored by the quarterback during the season.",
-    "Completion percentage, calculated as (completions ÷ attempts) × 100.",
-    "Total number of regular-season wins recorded by the quarterback's team (response variable)."
-  ),
-  Type = c(
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Predictor",
-    "Response"
-  )
-)
-
-kable(variable_table,
-      caption = "Description of Variables Used in the Analysis")
-```
-
 ```{r, warning=FALSE, echo=T, message=FALSE}
 # loading packages 
 library(corrplot)
 library(nflreadr)
 library(dplyr)
-
-```
-
-```{python}
-import pandas as pd
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=TRUE}
@@ -440,12 +388,59 @@ qb_season1 <- qb_season %>%
 ```
 
 ```{r}
+library(dplyr)
+library(knitr)
+
+variable_table <- data.frame(
+  Variable = c(
+    "passing_yards",
+    "passing_tds",
+    "interceptions",
+    "completions",
+    "attempts",
+    "passing_epa",
+    "rushing_yards",
+    "rushing_tds",
+    "completion_pct",
+    "wins"
+  ),
+  Description = c(
+    "Total number of passing yards recorded by the quarterback during the season.",
+    "Total number of passing touchdowns thrown by the quarterback during the season.",
+    "Total number of interceptions thrown by the quarterback during the season.",
+    "Total number of completed passes by the quarterback during the season.",
+    "Total number of pass attempts by the quarterback during the season.",
+    "Total Expected Points Added (EPA) generated through passing plays during the season.",
+    "Total number of rushing yards gained by the quarterback during the season.",
+    "Total number of rushing touchdowns scored by the quarterback during the season.",
+    "Completion percentage, calculated as (completions ÷ attempts) × 100.",
+    "Total number of regular-season wins recorded by the quarterback's team (response variable)."
+  ),
+  Type = c(
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Predictor",
+    "Response"
+  )
+)
+
+kable(variable_table,
+      caption = "Table 1: Description of Variables Used in the Analysis")
+```
+
+Figure 1: Correlation Plot between Variables
+
+```{r}
 correlation_matrix = round(cor(qb_season1, use = "complete.obs"), 2)
 corrplot(correlation_matrix, method = "color", type = "upper",
          tl.col = "black", tl.srt = 45)
 ```
-
-Figure 1: Correlation Plot between Variables
 
 According to the correlation plot above, the passing EPA has the
 strongest correlation with team wins (r = 0.66). Completion percentage
@@ -560,8 +555,9 @@ qb_season <- qb_season[, !(names(qb_season) %in% drop_vars)]
 # Scaling of numeric variables.
 
 qb_scaled <- qb_season
-numeric_cols <- sapply(qb_scaled, is.numeric)
-qb_scaled[numeric_cols] <- scale(qb_scaled[numeric_cols])
+predictor_cols <- setdiff(names(qb_scaled), "wins")
+
+qb_scaled[predictor_cols] <- scale(qb_scaled[predictor_cols])
 
 # Creation of train/test split.
 
@@ -617,9 +613,34 @@ comparison <- data.frame(
   Ridge = as.numeric(coef(ridge_cv, s = "lambda.min")),
   Lasso = as.numeric(coef(lasso_cv, s = "lambda.min"))
 )
-kable(comparison, caption = "Comparison of Linear, Ridge, and Lasso Regression Coefficients")
+kable(comparison, caption = "Table 2: Comparison of Linear, Ridge, and Lasso Regression Coefficients for Predicting Team Wins")
 
 
+```
+
+Table 2 shows that the linear regression model assigns larger
+coefficients to features with potential correlations, such as passing
+yards and attempts, which may indicate the presence of multicollinearity
+among predictors. The Ridge regression model reduces the magnitude of
+all coefficients while retaining all predictors in the model, helping to
+reduce the impact of multicollinearity. The Lasso regression model
+performs feature selection by shrinking the coefficients of passing
+yards, interceptions, attempts, and rushing yards to zero. This suggests
+that these variables provide less unique predictive information compared
+to the other quarterback statistics included in the model.
+
+An unexpected result from the linear regression model was the negative
+coefficient for passing yards (-0.474). Although higher passing yard
+totals are generally expected to contribute positively to team success,
+this coefficient represents the relationship between passing yards and
+wins while holding the other quarterback statistics constant. Since
+passing yards are highly correlated with variables such as attempts and
+completions, multicollinearity may have influenced the coefficient
+estimate and resulted in a counterintuitive direction. The Ridge and
+Lasso models reduce this issue by shrinking coefficients and reducing
+the influence of correlated predictors.
+
+```{r}
 results <- data.frame(Model = c("OLS", "Ridge", "Lasso")
 ,
 RMSE  = c(rmse(test$wins, ols_pred), rmse(test$wins, ridge_pred), rmse(test$wins, lasso_pred))
@@ -628,7 +649,53 @@ MAE = c(mae(test$wins, ols_pred), mae(test$wins, ridge_pred), mae(test$wins, las
 ,
 R2 = c(r2(test$wins, ols_pred), r2(test$wins, ridge_pred), r2(test$wins, lasso_pred)))
 
-kable(results, caption = "Comparison of RMSE, MAE, and R2" )
+kable(results, caption = "Table 3: Comparison of Model Performance Metrics for OLS, Ridge, and Lasso Regression" )
+```
+
+Table 3 compares the performance of the Ordinary Least Squares (OLS),
+Ridge, and Lasso regression models using Root Mean Squared Error (RMSE),
+Mean Absolute Error (MAE), and R². The OLS model achieved the best
+overall performance with the lowest RMSE (0.660), lowest MAE (0.530),
+and highest R² (0.589). Ridge and Lasso regression produced slightly
+higher prediction errors and slightly lower explained variance. Although
+regularization did not improve predictive performance in this dataset,
+Ridge and Lasso helped reduce the impact of multicollinearity by
+shrinking coefficient estimates and, in the case of Lasso, performing
+feature selection.
+
+```{r}
+predictions <- data.frame(
+  Actual = test$wins,
+  OLS = ols_pred,
+  Ridge = ridge_pred,
+  Lasso = lasso_pred
+)
+
+head(predictions)
+
+library(tidyr)
+library(ggplot2)
+
+predictions_long <- predictions %>%
+  pivot_longer(
+    cols = c(OLS, Ridge, Lasso),
+    names_to = "Model",
+    values_to = "Predicted"
+  )
+
+ggplot(predictions_long, aes(x = Actual, y = Predicted, color = Model)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Actual vs Predicted Team Wins",
+    x = "Actual Wins",
+    y = "Predicted Wins"
+  ) +
+  theme_minimal()
 ```
 
 ## Conclusion
