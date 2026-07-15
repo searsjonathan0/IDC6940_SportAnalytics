@@ -36,46 +36,22 @@ in regression due to correlation between variables
 [@mcdonald2009ridge]. 
 
 With the implementation of a machine learning regression model such as
-LASSO (Least Absolute Shrinkage and Selection Operator), and Ridge we
+Least Absolute Shrinkage and Selection Operator (LASSO), and Ridge we
 can simplify the variables and focus only on the important aspects that
-help to accurately predict wins. Both methods solve a modified
-optimization problem of the form:
-
-$$\hat{\boldsymbol{\beta}}
-=
-\arg\min_{\boldsymbol{\beta}}
-\left\{
-\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2
-+
-\lambda P(\boldsymbol{\beta})
-\right\}$$
-
-where $\hat{\boldsymbol{\beta}}$ represents the estimated coefficient
-vector, $\arg\min_{\boldsymbol{\beta}}$ represents the values of
-$\boldsymbol{\beta}$ that minimize the objective function, $\mathbf{y}$
-represents the observed response vector, $\mathbf{X}$ represents the
-design matrix of predictor variables, $\boldsymbol{\beta}$ represents
-the regression coefficient vector,
-$\|\mathbf{y}-\mathbf{X}\boldsymbol{\beta}\|_2^2$ represents the
-residual sum of squares, $\lambda$ represents the regularization
-parameter controlling the strength of the penalty, and
-$P(\boldsymbol{\beta})$ represents the penalty function applied to the
-coefficients.
-
-The difference between LASSO and Ridge regression comes from how their
-penalties are calculated mathematically. LASSO uses a shrinkage
-technique called L1 regularization, where it zeros out the least
-important variables, leaving only variables that are optimal for
-accurate prediction. Ridge regression uses a shrinkage technique called
-L2 regularization where it helps reduce multicollinearity without
-removing variables from the original set of independent variables. This
-helps with some of the distortion of the predictors. Another area where
-ridge differs from LASSO is that in the end and final model, ridge
-retains all variables . LASSO is a “step-up” from Ridge allowing for key
-variable selection, where Ridge can struggle with its limitations due to
-retention of all variables. This highlights that LASSO’s ability to
-produce a subset of “key-variables” from a high-dimensional dataset,
-makes it highly efficient.
+help to accurately predict wins. The difference between LASSO and Ridge
+regression comes from how their penalties are calculated mathematically.
+LASSO uses a shrinkage technique called L1 regularization, where it
+zeros out the least important variables, leaving only variables that are
+optimal for accurate prediction. Ridge regression uses a shrinkage
+technique called L2 regularization where it helps reduce
+multicollinearity without removing variables from the original set of
+independent variables. This helps with some of the distortion of the
+predictors. Another area where ridge differs from LASSO is that in the
+end and final model, ridge retains all variables . LASSO is a “step-up”
+from Ridge allowing for key variable selection, where Ridge can struggle
+with its limitations due to retention of all variables. This highlights
+that LASSO’s ability to produce a subset of “key-variables” from a
+high-dimensional dataset, makes it highly efficient.
 
 Previous research examining LASSO regression has consistently
 demonstrated its usefulness in datasets containing large numbers of
@@ -123,7 +99,7 @@ This will be seen by comparing a standard linear regression, Ridge
 regression, and LASSO regression ability to predict the number of
 regular-season wins by an NFL team using that team’s quarterback's
 performance statistics. Predictor variables include a quarterback’s
-season standard statistics, as well as expected points added (EPA), a
+season standard statistics, as well as expected points added (EPA), a
 metric that measures how many net points a quarterback adds to their
 team's scoring potential on passing plays, compared to the
 league-average expectation for any given down, distance, and field
@@ -289,12 +265,12 @@ Quarterback performance data were obtained using the
 players whose position was quarterback (QB). Weekly statistics were then
 aggregated into season-level totals for each quarterback and team. The
 aggregated variables included passing yards, passing touchdowns,
-interceptions, completions, pass attempts, passing EPA (Expected Points
-Added), rushing yards, and rushing touchdowns. In addition, completion
-percentage was calculated by dividing total completions by total pass
-attempts and multiplying by 100.
+interceptions, completions, pass attempts, passing EPA, rushing yards,
+and rushing touchdowns. In addition, completion percentage was
+calculated by dividing total completions by total pass attempts and
+multiplying by 100.
 
-Team performance data were collected using the `load_schedules()`
+Team performance data was collected using the `load_schedules()`
 function. Only regular-season games were included by filtering for
 `game_type == "REG"`. Wins were calculated separately for home and away
 teams by comparing the final scores of each game. Home and away wins
@@ -562,7 +538,7 @@ qb_scaled[predictor_cols] <- scale(qb_scaled[predictor_cols])
 # Creation of train/test split.
 
 set.seed(123)
-train_index <- sample(seq_len(nrow(qb_scaled)), 0.8 * nrow(qb_scaled))
+train_index <- sample(seq_len(nrow(qb_scaled)), 0.9 * nrow(qb_scaled))
 
 train <- qb_scaled[train_index, ]
 test  <- qb_scaled[-train_index, ]
@@ -590,6 +566,13 @@ set.seed(123)
 ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0, nfolds = 10)
 set.seed(123)
 lasso_cv <- cv.glmnet(x_train, y_train, alpha = 1, nfolds = 10)
+
+
+# Training predictions
+ols_train_pred <- predict(LinReg, newdata = train)
+ridge_train_pred <- as.vector(predict(ridge_cv, newx = x_train, s = "lambda.min"))
+lasso_train_pred <- as.vector(predict(lasso_cv, newx = x_train, s = "lambda.min"))
+
 
 # Prediction utilizing the test set.
 
@@ -625,12 +608,12 @@ among predictors. The Ridge regression model reduces the magnitude of
 all coefficients while retaining all predictors in the model, helping to
 reduce the impact of multicollinearity. The Lasso regression model
 performs feature selection by shrinking the coefficients of passing
-yards, interceptions, attempts, and rushing yards to zero. This suggests
-that these variables provide less unique predictive information compared
-to the other quarterback statistics included in the model.
+yards and attempts to zero. This suggests that these variables provide
+less unique predictive information compared to the other quarterback
+statistics included in the model.
 
 An unexpected result from the linear regression model was the negative
-coefficient for passing yards (-1.489). Although higher passing yard
+coefficient for passing yards (-1.257). Although higher passing yard
 totals are generally expected to contribute positively to team success,
 this coefficient represents the relationship between passing yards and
 wins while holding the other quarterback statistics constant. Since
@@ -641,27 +624,110 @@ Lasso models reduce this issue by shrinking coefficients and reducing
 the influence of correlated predictors.
 
 ```{r}
-results <- data.frame(Model = c("OLS", "Ridge", "LASSO")
-,
-RMSE  = c(rmse(test$wins, ols_pred), rmse(test$wins, ridge_pred), rmse(test$wins, lasso_pred))
-,
-MAE = c(mae(test$wins, ols_pred), mae(test$wins, ridge_pred), mae(test$wins, lasso_pred))
-,
-R2 = c(r2(test$wins, ols_pred), r2(test$wins, ridge_pred), r2(test$wins, lasso_pred)))
+num_predictors <- ncol(x_train)
 
-kable(results, caption = "Table 3: Comparison of Model Performance Metrics for OLS, Ridge, and LASSO Regression" )
+ols_predictors <- num_predictors
+ridge_predictors <- num_predictors
+
+# Count nonzero coefficients (excluding intercept)
+lasso_predictors <- sum(coef(lasso_cv, s = "lambda.min")[-1] != 0)
+
+results <- data.frame(
+  Model = c("OLS", "Ridge", "LASSO"),
+
+  Predictors = c(
+    ols_predictors,
+    ridge_predictors,
+    lasso_predictors
+  ),
+
+  Train_RMSE = c(
+    rmse(train$wins, ols_train_pred), 
+    rmse(train$wins, ridge_train_pred), 
+    rmse(train$wins, lasso_train_pred)
+  ),
+
+  Train_MAE = c(
+    mae(train$wins, ols_train_pred),
+    mae(train$wins, ridge_train_pred),
+    mae(train$wins, lasso_train_pred)
+  ),
+
+  Train_R2 = c(
+    r2(train$wins, ols_train_pred),
+    r2(train$wins, ridge_train_pred),
+    r2(train$wins, lasso_train_pred)
+  ),
+
+  Test_RMSE = c(
+    rmse(test$wins, ols_pred), 
+    rmse(test$wins, ridge_pred), 
+    rmse(test$wins, lasso_pred)
+  ),
+
+  Test_MAE = c(
+    mae(test$wins, ols_pred),
+    mae(test$wins, ridge_pred),
+    mae(test$wins, lasso_pred)
+  ),
+
+  Test_R2 = c(
+    r2(test$wins, ols_pred),
+    r2(test$wins, ridge_pred),
+    r2(test$wins, lasso_pred)
+  )
+)
+
+kable(
+  results,
+  digits = 3,
+  caption = "Table 3: Comparison of Training and Test Performance for OLS, Ridge, and LASSO Regression Models"
+)
 ```
 
-Table 3 compares the performance of the Ordinary Least Squares (OLS),
-Ridge, and LASSO regression models using Root Mean Squared Error (RMSE),
-Mean Absolute Error (MAE), and R². The OLS model achieved the best
-overall performance with the lowest RMSE (2.072), lowest MAE (1.663),
-and highest R² (0.589). Ridge and LASSO regression produced slightly
-higher prediction errors and slightly lower explained variance. Although
-regularization did not improve predictive performance in this dataset,
-Ridge and LASSO helped reduce the impact of multicollinearity by
-shrinking coefficient estimates and, in the case of LASSO, performing
-feature selection.
+Table 3 compares the training and testing performance of the Ordinary
+Least Squares (OLS), Ridge, and LASSO regression models used to predict
+team wins based on quarterback performance statistics. Overall, all
+three models produced similar results, suggesting that regularization
+had a limited impact on predictive accuracy for this dataset.
+
+The comparison of training and testing performance indicates no strong
+evidence of overfitting or underfitting among the OLS, Ridge, or LASSO
+regression models. Training and testing errors were similar across all
+models, suggesting that the models generalized well to unseen data.
+Additionally, the test $R^2$ values were slightly higher than the
+training $R^2$ values, indicating that the models did not simply
+memorize the training data. However, because the models explain
+approximately 58% of the variance in team wins, there may be some degree
+of underfitting due to the limited set of predictors. Additional factors
+such as defensive performance, coaching decisions, injuries, and
+strength of schedule may improve predictive performance.
+
+On the training set, OLS achieved the lowest RMSE (2.285) and MAE
+(1.856) with an $R^2$ of 0.470, indicating that it explained
+approximately 47% of the variation in team wins. Ridge regression
+produced slightly higher error values (RMSE = 2.299, MAE = 1.868) and a
+slightly lower $R^2$ (0.463), showing that coefficient shrinkage
+slightly reduced training performance. LASSO regression performed
+similarly to OLS, while reducing the number of predictors from 9 to 7
+through feature selection.
+
+On the testing set, LASSO achieved the strongest predictive performance
+with the lowest RMSE (1.975), a comparable MAE (1.591), and the highest
+$R^2$ value (0.584). OLS performed closely behind with a test RMSE of
+1.987 and $R^2$ of 0.579, while Ridge had the weakest test performance
+with an RMSE of 2.020 and $R^2$ of 0.565. The slightly improved test
+performance of LASSO suggests that removing less influential predictors
+helped improve model generalization and reduce unnecessary complexity.
+
+Although LASSO selected fewer predictors, the differences among the
+three models were relatively small. This indicates that quarterback
+statistics contain meaningful predictive information for team wins, but
+additional factors such as defensive performance, coaching, injuries,
+and strength of schedule likely contribute significantly to team
+success. The results demonstrate that regularization methods,
+particularly LASSO, can provide a more efficient model while maintaining
+or slightly improving predictive accuracy.
 
 ```{r}
 predictions <- data.frame(
@@ -671,7 +737,7 @@ predictions <- data.frame(
   LASSO = lasso_pred
 )
 
-head(predictions)
+#head(predictions)
 
 library(tidyr)
 library(ggplot2)
@@ -691,7 +757,7 @@ ggplot(predictions_long, aes(x = Actual, y = Predicted, color = Model)) +
     linetype = "dashed"
   ) +
   labs(
-    title = "Actual vs Predicted Team Wins",
+    title = "Figure 5: Actual vs Predicted Team Wins",
     x = "Actual Wins",
     y = "Predicted Wins"
   ) +
@@ -702,13 +768,13 @@ ggplot(predictions_long, aes(x = Actual, y = Predicted, color = Model)) +
 par(mfrow = c(1,2), cex.main = 0.9)
 
 plot(ridge_cv)
-title("Figure 5: Ridge Cross-Validation Curve")
+title("Figure 6: Ridge Cross-Validation Curve")
 
 plot(lasso_cv)
-title("Figure 6: LASSO Cross-Validation Curve")
+title("Figure 7: LASSO Cross-Validation Curve")
 ```
 
-Figures 5 and 6 show how cross-validation was used to identify the
+Figures 6 and 7 show how cross-validation was used to identify the
 optimal regularization parameter ($\lambda$) for both Ridge and LASSO
 regression models. The cross-validation curves demonstrate that
 prediction error decreased as regularization was introduced, reached a
