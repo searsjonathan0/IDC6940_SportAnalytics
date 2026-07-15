@@ -788,48 +788,62 @@ models.
 ## Conclusion
 
 This research evaluated LASSO and Ridge regression against a baseline
-ordinary least squares model to predict team wins using quarterback
-performance statistics. Prior to researching the linear regression model
-compared to LASSO and Ridge regularized regression model, the
-correlation plot from Figure 1 shows an almost perfect correlation
-between passing statistics such as completions and pass attempts
-(r=0.99) and passing yards (r=0.96) and EPA gave the strongest
-correlation with team wins (r=0.66) and completion percentage gave a
-moderately positive correlation with team wins (r=0.41). Figures 2 and 3
-indicated possible strong positive correlation between team wins versus
-passing yards and team wins versus passing touchdowns preemptively
-suggesting these to be key variables in predicting team wins. However,
-as shown in Table 2, the baseline Ordinary Least Squares model in this
-research gave a negative coefficient for passing yards possibly being
-influenced by multicollinearity due to passing yards being highly
-correlated with other predictors such as completions and attempts. Ridge
-regression reduced the value of all the coefficients without removing
-predictors while LASSO regression shrunk the coefficients of passing
-yards, interceptions, attempts and rushing yards to zero implicating
-these variables to be the least important in predicting wins
-comparatively with other quarterback variables. Which previously passing
-yards was assumed to be a key variable but LASSO results show the
-contrary. Although passing yards through LASSO and OLS analysis went
-against previous assumptions, passing touchdowns maintained a strong
-positive relationship with team wins. The combination of the distorted
-OLS coefficient and elimination in LASSO, shows that passing yards, pass
-attempts and rushing yards proved to not be key indicators of team
-success. When evaluating performance prediction accuracy of OLS, LASSO
-and Ridge regression as shown in Table 3, OLS achieved the highest
-overall fit with the lowest RMSE and MAE and highest $R^2$ with Ridge
-following second and LASSO following in third with the lowest fit out of
-the other 2 models. Although OLS appears superior in this comparison
-result, its previous erratic coefficient value from earlier diagnostics
-causes concern for interpretability. Overall even though OLS seemed to
-outperform LASSO and Ridge slightly in model performance metrics (RSME,
-MAE and $R^2$), LASSO and Ridge with their shrinking techniques helped
-to reduce the overall impact of multicollinearity more efficiently than
-OLS suggesting that traditional linear regression methods could be
-uncertain when facing complex and highly correlated variables. This
-research helped to highlight the key variables of quarterback statistics
-that contribute to team successes through regularized regression which
-can prove beneficial for future predictions by providing an
-interpretable foundation of how quarterback's performance impacts team
+Ordinary Least Squares model to predict team wins using quarterback
+performance statistics. This research examined the impact of
+multicollinearity on team wins in the NFL and determined key quarterback
+statistics that influence team success. 
+
+Prior to researching the linear regression model compared to LASSO and
+Ridge regularized regression model, the correlation plot from Figure 1
+shows an almost perfect correlation between passing statistics such as
+completions and pass attempts (r=0.99) and passing yards (r=0.96) and
+EPA gave the strongest correlation with team wins (r=0.66) and
+completion percentage gave a moderately positive correlation with team
+wins (r=0.41). 
+
+Figures 2 and 3 indicated possible strong positive correlation between
+team wins versus passing yards and team wins versus passing touchdowns
+preemptively suggesting these to be key variables in predicting team
+wins. However, as shown in Table 2, the baseline Ordinary Least Squares
+(OLS) model in this research gave a negative coefficient for passing
+yards possibly being influenced by multicollinearity due to passing
+yards being highly correlated with other predictors such as completions
+and attempts. 
+
+Ridge regression reduced the value of all the coefficients without
+removing predictors while LASSO regression shrunk the coefficients of
+passing yards and attempts to zero implicating these variables to be the
+least important in predicting wins comparatively with other quarterback
+variables. Which previously passing yards was assumed to be a key
+variable but LASSO results show the contrary. Although passing yards
+through LASSO and OLS analysis went against previous assumptions,
+passing touchdowns maintained a strong positive relationship with team
 wins. 
+
+The combination of the distorted OLS coefficient and elimination in
+LASSO, shows that passing yards, pass attempts and rushing yards proved
+to not be key indicators of team success. When evaluating performance
+prediction accuracy of OLS, LASSO and Ridge regression as shown in Table
+3, LASSO achieved the highest overall fit with the lowest RMSE and MAE
+and highest $R^2$ with OLS following second and Ridge following in third
+with the lowest fit out of the other 2 models with the values being very
+close. 
+
+Although OLS appears similar in this comparison result, its previous
+erratic coefficient value from earlier diagnostics causes concern for
+interpretability. Overall even though OLS seemed to perform similarly to
+LASSO and Ridge slightly in model performance metrics (RSME, MAE and
+$R^2$), LASSO and Ridge with their shrinking techniques helped to reduce
+the overall impact of multicollinearity more efficiently than OLS
+suggesting that traditional linear regression methods could be uncertain
+when facing complex and highly correlated variables. LASSO proved to be
+the best methodology overall comparatively with its feature selection,
+low RSME and MAE and high $R^2$.
+
+This research helped to highlight the key variables of quarterback
+statistics that contribute to team successes through regularized
+regression, LASSO being the best methodology. Which can prove beneficial
+for future prediction and team recruitment by providing an interpretable
+foundation of how a quarterback's performance impacts team wins.
 
 ## References
