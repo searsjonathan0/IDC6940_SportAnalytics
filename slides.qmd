@@ -1,7 +1,7 @@
 ---
-title: "Present a great story for data science projects"
-subtitle: "This is a Slide Template"
-author: "Students names (Advisor: Dr. Cohen)"
+title: "Predicting Team Wins Based on QB Play"
+subtitle: "Using Ridge and LASSO Regression to Address Multicollinearity"
+author: "Jonathan Sears, Jasmine Cole, Noah Miller (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 format:
   revealjs
@@ -29,17 +29,17 @@ More information about `revealjs`:
 <https://quarto.org/docs/reference/formats/presentations/revealjs.html>
 :::
 
-## Introduction  {.smaller}
+## Introduction {.smaller}
 
--   Develop a storyline that captures attention and maintains interest.
+- Develop a storyline that captures attention and maintains interest.
 
--   Your audience is your peers
+- Your audience is your peers
 
--   Clearly state the problem or question you're addressing.
+- Clearly state the problem or question you're addressing.
 
--   Introduce why it is relevant needs.
+- Introduce why it is relevant needs.
 
--   Provide an overview of your approach.
+- Provide an overview of your approach.
 
 In kernel estimator, weight function is known as kernel function
 [@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
@@ -47,71 +47,398 @@ The PCA [@daffertshofer2004pca]\*
 
 ## Methods
 
--   Detail the models or algorithms used.
+- Detail the models or algorithms used.
 
--   Justify your choices based on the problem and data.
+- Justify your choices based on the problem and data.
 
+## Data Exploration and Visualization (Data Source and Collection Process)
 
+- Dataset was created using R package **nflreadr**
 
-## Data Exploration and Visualization
+- Collected quarterback (QB) performance data using
+  `load_player_stats()` function for 2015-2024 seasons
 
--   Describe your data sources and collection process.
+- Aggregated weekly statistics into season stats
 
--   Present initial findings and insights through visualizations.
+- Collected win totals using the `load_schedules()` function and counted
+  number of wins for home and away games for each team.
 
--   Highlight unexpected patterns or anomalies.
+- Joined QB statistics with team wins by matching season and team as
+  matching variables
 
 ## Data Exploration and Visualization {.smaller}
 
-A study was conducted to determine how...
+A study was conducted to determine how quarterback (QB) season
+statistics correlates with how many wins a team has in that season.
 
 ```{r, warning=FALSE, echo=F, message=FALSE}
 # loading packages 
-library(tidyverse)
+library(corrplot)
+library(nflreadr)
+library(dplyr)
 library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
+library(kableExtra)
+library(ggplot2)
 ```
 
 ```{r, warning=FALSE, echo=F}
 # Load Data
-#kable(head(murders))
+variable_table <- data.frame(
+  Variable = c(
+    "Passing Yards",
+    "Passing TDs",
+    "Interceptions",
+    "Completions",
+    "Attempts",
+    "Passing EPA",
+    "Rushing Yards",
+    "Rushing TDs",
+    "Completion %",
+    "Wins"
+  ),
+  Type = c(
+    rep("Predictor", 9),
+    "Response"
+  )
+)
 
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
+knitr::kable(
+  variable_table
+) %>%
+  kableExtra::kable_styling(
+    font_size = 20,
+    full_width = FALSE
+  )
 
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
+```
 
+## Data Exploration and Visualization {.smaller}
+
+```{r}
+years = 2015:2024
+weekly = load_player_stats(years)
+qbs <- weekly %>%
+  filter(position == "QB")
+qb_season <- qbs %>%
+  group_by(player_display_name, season, team) %>%
+  summarize(
+    passing_yards = sum(passing_yards, na.rm = TRUE),
+    passing_tds = sum(passing_tds, na.rm = TRUE),
+    interceptions = sum(passing_interceptions, na.rm = TRUE),
+    completions = sum(completions, na.rm = TRUE),
+    attempts = sum(attempts, na.rm = TRUE),
+    passing_epa = sum(passing_epa, na.rm = TRUE),
+    rushing_yards = sum(rushing_yards, na.rm = TRUE),
+    rushing_tds = sum(rushing_tds, na.rm = TRUE)
+  )
+
+qb_season <- qb_season %>%
+  mutate(
+    completion_pct = (completions / attempts) * 100
+  )
+
+
+schedules <- load_schedules(2015:2024)
+team_wins <- schedules %>%
+  filter(game_type == "REG") %>%
+  mutate(
+    home_win = ifelse(home_score > away_score, 1, 0),
+    away_win = ifelse(away_score > home_score, 1, 0)
+  )
+
+home_wins <- team_wins %>%
+  group_by(season, team = home_team) %>%
+  summarize(wins = sum(home_win, na.rm = TRUE))
+
+away_wins <- team_wins %>%
+  group_by(season, team = away_team) %>%
+  summarize(wins = sum(away_win, na.rm = TRUE))
+
+team_total_wins <- bind_rows(home_wins, away_wins) %>%
+  group_by(season, team) %>%
+  summarize(wins = sum(wins))
+
+qb_season <- qb_season %>%
+  left_join(team_total_wins,
+            by = c("season", "team"))
+
+
+
+qb_season <- qb_season %>%
+  filter(attempts >= 200)
+
+
+
+
+qb_season1 <- qb_season %>%
+  ungroup() %>%
+  select(-player_display_name, -season, -team)
+
+correlation_matrix = round(cor(qb_season1, use = "complete.obs"), 2)
+corrplot(correlation_matrix, method = "color", type = "upper",
+         tl.col = "black", tl.srt = 45)
+```
+
+## Data Exploration and Visualization {.smaller}
+
+::: {layout-ncol="2"}
+```{r, echo=FALSE}
+#| fig-width: 6
+#| fig-height: 5
+
+ggplot(qb_season1, aes(x = passing_tds, y = wins)) + geom_point(alpha = 0.7) + geom_smooth(method = "lm",color = "red") + labs(x="Passing touchdowns", y="Team wins", title = "Passing Touchdowns vs Team Wins")
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 5
+
+ggplot(qb_season1, aes(x = passing_yards, y = wins)) + geom_point(alpha = 0.7) + geom_smooth(method = "lm") + labs(x="Passing yards", y="Team wins", title = "Passing Yards vs Team Wins")
+```
+:::
+
+## Data Exploration and Visualization {.smaller}
+
+```{r}
+VIF_Visualization_Model <- lm(wins ~ passing_yards + passing_tds + interceptions + completions + attempts + passing_epa + rushing_yards + rushing_tds + completion_pct, data = qb_season1)
+library(car)
+VIF_Visualization_Values <- vif(VIF_Visualization_Model)
+VIF_Visualization_Values
+VIF_Visualization_Dataframe <- data.frame(Variable = names(VIF_Visualization_Values), VIF = as.numeric(VIF_Visualization_Values))
+library(ggplot2)
+ggplot(VIF_Visualization_Dataframe, aes(x = reorder(Variable, VIF), y = VIF)) + geom_col(fill = "steelblue") + geom_hline(yintercept = 5, linetype = "dashed", color = "red") + coord_flip() + labs(title = "Variance Inflation Factors (VIFs) of Dataset Predictors", x = "Predictor", y = "VIF") + theme_minimal()
+
+```
+
+## Modeling and Results (Data Preprocessing)
+
+- Created a new variable called completion percentage
+
+- QBs with fewer than 200 pass attempts were removed
+
+- All predictor variables were standardized
+
+- The data set was was split into a 90% training set, 10% test set
+
+## Modeling and Results
+
+```{r}
+# Removal of non-numeric variables.
+
+drop_vars <- c("player_display_name", "season", "team")  
+qb_season <- qb_season
+qb_season <- qb_season[, !(names(qb_season) %in% drop_vars)]
+
+# Scaling of numeric variables.
+
+qb_scaled <- qb_season
+predictor_cols <- setdiff(names(qb_scaled), "wins")
+
+qb_scaled[predictor_cols] <- scale(qb_scaled[predictor_cols])
+
+# Creation of train/test split.
+
+set.seed(123)
+train_index <- sample(seq_len(nrow(qb_scaled)), 0.9 * nrow(qb_scaled))
+
+train <- qb_scaled[train_index, ]
+test  <- qb_scaled[-train_index, ]
+
+# Removal of missing values.
+
+train <- na.omit(train)
+test  <- na.omit(test)
+
+# Simple regression model creation.
+
+LinReg <- lm(wins ~ ., data = train)
+
+# Matrix design in preparation for glmnet.
+
+x_train <- model.matrix(wins ~ ., data = train)[, -1]
+y_train <- train$wins
+x_test_raw <- model.matrix(wins ~ ., data = test)[, -1]
+x_test <- x_test_raw[, colnames(x_train), drop = FALSE]
+
+# Ridge and Lasso creation including 10-fold cross-validation.
+
+library(glmnet)
+set.seed(123)
+ridge_cv <- cv.glmnet(x_train, y_train, alpha = 0, nfolds = 10)
+set.seed(123)
+lasso_cv <- cv.glmnet(x_train, y_train, alpha = 1, nfolds = 10)
+
+
+# Training predictions
+ols_train_pred <- predict(LinReg, newdata = train)
+ridge_train_pred <- as.vector(predict(ridge_cv, newx = x_train, s = "lambda.min"))
+lasso_train_pred <- as.vector(predict(lasso_cv, newx = x_train, s = "lambda.min"))
+
+
+# Prediction utilizing the test set.
+
+ols_pred   <- predict(LinReg, newdata = test)
+ridge_pred <- as.vector(predict(ridge_cv, newx = x_test, s = "lambda.min"))
+lasso_pred <- as.vector(predict(lasso_cv, newx = x_test, s = "lambda.min"))
+
+# Calculation of metrics.
+
+rmse <- function(y, yhat) sqrt(mean((y - yhat)^2))
+mae  <- function(y, yhat) mean(abs(y - yhat))
+r2   <- function(y, yhat) 1 - sum((y - yhat)^2) / sum((y - mean(y))^2)
+
+# Evaluation based on sought-after metrics.
+
+lin_coef <- coef(LinReg)
+
+comparison <- data.frame(
+  Variable = names(lin_coef),
+  Linear = as.numeric(lin_coef),
+  Ridge = as.numeric(coef(ridge_cv, s = "lambda.min")),
+  LASSO = as.numeric(coef(lasso_cv, s = "lambda.min"))
+)
+
+comparison <- comparison |>
+  mutate(
+    Linear = round(Linear, 3),
+    Ridge = round(Ridge, 3),
+    LASSO = round(LASSO, 3)
+  )
+
+knitr::kable(
+  comparison,
+  col.names = c("Variable", "OLS", "Ridge", "LASSO")
+) %>%
+  kable_styling(
+    font_size = 20,
+    position = "center",
+    full_width = FALSE
+  )
 ```
 
 ## Modeling and Results
 
--   Explain your data preprocessing and cleaning steps.
+```{r}
+num_predictors <- ncol(x_train)
 
--   Present your key findings in a clear and concise manner.
+ols_predictors <- num_predictors
+ridge_predictors <- num_predictors
 
--   Use visuals to support your claims.
+# Count nonzero coefficients (excluding intercept)
+lasso_predictors <- sum(coef(lasso_cv, s = "lambda.min")[-1] != 0)
 
--   **Tell a story about what the data reveals.**
+results <- data.frame(
+  Model = c("OLS", "Ridge", "LASSO"),
+
+  Predictors = c(
+    ols_predictors,
+    ridge_predictors,
+    lasso_predictors
+  ),
+
+  Train_RMSE = c(
+    rmse(train$wins, ols_train_pred), 
+    rmse(train$wins, ridge_train_pred), 
+    rmse(train$wins, lasso_train_pred)
+  ),
+
+  Train_MAE = c(
+    mae(train$wins, ols_train_pred),
+    mae(train$wins, ridge_train_pred),
+    mae(train$wins, lasso_train_pred)
+  ),
+
+  Train_R2 = c(
+    r2(train$wins, ols_train_pred),
+    r2(train$wins, ridge_train_pred),
+    r2(train$wins, lasso_train_pred)
+  ),
+
+  Test_RMSE = c(
+    rmse(test$wins, ols_pred), 
+    rmse(test$wins, ridge_pred), 
+    rmse(test$wins, lasso_pred)
+  ),
+
+  Test_MAE = c(
+    mae(test$wins, ols_pred),
+    mae(test$wins, ridge_pred),
+    mae(test$wins, lasso_pred)
+  ),
+
+  Test_R2 = c(
+    r2(test$wins, ols_pred),
+    r2(test$wins, ridge_pred),
+    r2(test$wins, lasso_pred)
+  )
+)
+
+knitr::kable(
+  results,
+  digits = 3
+) %>%
+  kable_styling(
+    font_size = 20,
+    position = "center",
+    full_width = FALSE
+  )
+```
+
+## Modeling and Results
 
 ```{r}
+predictions <- data.frame(
+  Actual = test$wins,
+  OLS = ols_pred,
+  Ridge = ridge_pred,
+  LASSO = lasso_pred
+)
 
+#head(predictions)
+
+library(tidyr)
+library(ggplot2)
+
+predictions_long <- predictions %>%
+  pivot_longer(
+    cols = c(OLS, Ridge, LASSO),
+    names_to = "Model",
+    values_to = "Predicted"
+  )
+
+ggplot(predictions_long, aes(x = Actual, y = Predicted, color = Model)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    linetype = "dashed"
+  ) +
+  labs(
+    title = "Actual vs Predicted Team Wins",
+    x = "Actual Wins",
+    y = "Predicted Wins"
+  ) +
+  theme_minimal()
+```
+
+## Modeling and Results
+
+```{r}
+par(mfrow = c(1,2), cex.main = 0.9)
+
+plot(ridge_cv)
+title("Ridge Cross-Validation Curve")
+
+plot(lasso_cv)
+title("LASSO Cross-Validation Curve")
 ```
 
 ## Conclusion
 
--   Summarize your key findings.
+- Summarize your key findings.
 
--   Discuss the implications of your results.
+- Discuss the implications of your results.
 
 ## References
+
+:::

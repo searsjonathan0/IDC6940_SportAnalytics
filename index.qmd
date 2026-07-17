@@ -1,5 +1,5 @@
 ---
-title: "Applying Lasso/Ridge Regression Upon NFL Data"
+title: "Examining Multicollinearity in Quarterback Statistics using Regularized Regression"
 subtitle: "Predicting Team Wins Based On QB Play"
 author: "Jonathan Sears, Jasmine Cole, Noah Miller"
 date: '`r Sys.Date()`'
