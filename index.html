@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Jonathan Sears, Jasmine Cole, Noah Miller">
-<meta name="dcterms.date" content="2026-07-17">
+<meta name="dcterms.date" content="2026-07-19">
 
 <title>Examining Multicollinearity in Quarterback Statistics using Regularized Regression</title>
 <style>
@@ -2385,7 +2385,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 17, 2026</p>
+      <p class="date">July 19, 2026</p>
     </div>
   </div>
   
@@ -2408,17 +2408,15 @@ window.Quarto = {
 </section>
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
-<p>Following base cleaning of the data, numerical values were scaled to a mean of 0 and a standard deviation of 1. The data were standardized based upon:</p>
+<p>Following base cleaning of the data, numerical values were scaled to a mean of 0 and a standard deviation of 1 in an effort to preserve proportionate influence upon results. The data were standardized based upon:</p>
 <p><span class="math display">\[x_{ij}^{\text{scaled}}
 =
 \frac{x_{ij}-\mu_j}{\sigma_j}\]</span></p>
 <p>where <span class="math inline">\(x_{ij}\)</span> represents value of feature j for observation i, <span class="math inline">\(\mu_j\)</span> represents mean of feature j, and <span class="math inline">\(\sigma_j\)</span> represents standard deviation of feature j.</p>
-<p>A standard linear regression is used as a baseline, calculated by:</p>
+<p>A standard linear regression (term used interchangeably with Ordinary Least Squares and OLS for the purposes of this report) is used as a baseline, calculated by:</p>
 <p><span class="math display">\[y_i = \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \epsilon_i\]</span></p>
 <p>where <span class="math inline">\(y_i\)</span> represents the observed response for observation i, <span class="math inline">\(\beta_0\)</span> represents the intercept term, <span class="math inline">\(x_{ij}\)</span> represents the value of predictor variable j for observation i, <span class="math inline">\(\beta_j\)</span> represents the coefficient associated with predictor, <span class="math inline">\(j\)</span> represents the index of the predictor variables, and <span class="math inline">\(p\)</span> represents the total number of predictor variables, and <span class="math inline">\(\epsilon_i\)</span> represents the random error term for observation i.</p>
-<p>For the LASSO and Ridge regression methods, the regularization parameter (<span class="math inline">\(\lambda\)</span>) was selected using a 10-fold cross validation, defined as:</p>
-<p><span class="math display">\[\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k\]</span></p>
-<p>ensuring a practical 90/10 train-test split, a common approach for numerical datasets of less than 1000 observations. Within the function, the dataset is divided into ten equally sized subsets, where nine folds are used to train the model while the remaining fold is reserved for validation (testing). The process is repeated until each fold has served as the validation set exactly once, and the resulting validation errors are averaged to estimate the model’s predictive performance. By evaluating each candidate value of the regularization parameter (<span class="math inline">\(\lambda\)</span>) across all ten folds, what is identified is the value that minimizes the cross-validated error. The use of 10-fold cross-validation provides a balance between computational efficiency and reliable model evaluation, allowing nearly all observations to contribute to both model training and validation throughout the procedure, without heightened risk of overfitting or underfitting.</p>
+<p>Exploratory analysis will reveal substantial multicollinearity among predictor variables. Because correlated predictors can produce unstable coefficient estimates in Ordinary Least Squares regression, regularized regression approaches will be used to improve model stability. LASSO and Ridge regression were selected because both methods reduce the impact of multicollinearity through coefficient shrinkage, while differing in their approach to variable retention and selection.</p>
 <p>The LASSO regression equation upon the data was calculated by:</p>
 <p><span class="math display">\[\hat{\boldsymbol{\beta}}
 =
@@ -2445,6 +2443,9 @@ y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
 \lambda\sum_{j=1}^{p}\beta_j^2
 \right\}\]</span></p>
 <p>where <span class="math inline">\(\lambda\sum_{j=1}^{p}\beta_j^2\)</span> represents the L2 penalty.</p>
+<p>For the LASSO and Ridge regression methods, the regularization parameter (<span class="math inline">\(\lambda\)</span>) was selected using a 10-fold cross validation, defined as:</p>
+<p><span class="math display">\[\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k\]</span></p>
+<p>ensuring a practical 90/10 train-test split, a common approach for numerical datasets of less than 1000 observations. Within the function, the dataset is divided into ten equally sized subsets, where nine folds are used to train the model while the remaining fold is reserved for validation (testing). The process is repeated until each fold has served as the validation set exactly once, and the resulting validation errors are averaged to estimate the model’s predictive performance. By evaluating each candidate value of the regularization parameter (<span class="math inline">\(\lambda\)</span>) across all ten folds, what is identified is the value that minimizes the cross-validated error. The use of 10-fold cross-validation provides a balance between computational efficiency and reliable model evaluation, allowing nearly all observations to contribute to both model training and validation throughout the procedure, without heightened risk of overfitting or underfitting.</p>
 <p>To evaluate the predictive performance of the LASSO and Ridge regression models, RMSE, MAE, and R² were calculated using the cross-validated predictions. RMSE and MAE quantify the average prediction error, with RMSE placing greater emphasis on larger errors due to the squared error term. RMSE is represented by:</p>
 <p><span class="math display">\[\mathrm{RMSE}
 =
@@ -3113,14 +3114,45 @@ y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
 </div>
 </div>
 </div>
-<p>Figures 6 and 7 show how cross-validation was used to identify the optimal regularization parameter (<span class="math inline">\(\lambda\)</span>) for both Ridge and LASSO regression models. The cross-validation curves demonstrate that prediction error decreased as regularization was introduced, reached a minimum at the selected <span class="math inline">\(\lambda\)</span>, and increased with stronger regularization. This pattern indicates that a considerable level of regularization provided the best balance between model complexity and predictive accuracy. The <span class="math inline">\(\lambda\)</span> values corresponding to the minimum cross-validation error were used to fit the final Ridge and LASSO models.</p>
+<p>Figures 6 and 7 show how cross-validation was used to identify the optimal regularization parameter (<span class="math inline">\(\lambda\)</span>) for both Ridge and LASSO regression models. The cross-validation curves demonstrate that prediction error decreased as the strength of regularization was reduced, reaching a minimum at the selected <span class="math inline">\(\lambda\)</span> value. Further reductions in regularization resulted in minimal improvements in prediction error, indicating that the selected <span class="math inline">\(\lambda\)</span> provided an appropriate balance between model complexity and predictive accuracy. The <span class="math inline">\(\lambda\)</span> values corresponding to the minimum cross-validation error were used to fit the final Ridge and LASSO models.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ols_resid   &lt;- test$wins - ols_pred</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#ridge_resid &lt;- test$wins - ridge_pred</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#lasso_resid &lt;- test$wins - lasso_pred</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#residuals_df &lt;- bind_rows(</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#data.frame(Predicted = ols_pred,</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Residual = ols_resid,</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Model = &quot;OLS&quot;),</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#data.frame(Predicted = ridge_pred,</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Residual = ridge_resid,</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Model = &quot;Ridge&quot;),</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">#data.frame(Predicted = lasso_pred,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Residual = lasso_resid,</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>             <span class="co">#Model = &quot;LASSO&quot;)</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#)</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#ggplot(residuals_df,</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>       <span class="co">#aes(x = Predicted, y = Residual)) +</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_point(alpha = 0.7) +</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_hline(yintercept = 0, color = &quot;red&quot;) +</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#facet_wrap(~Model) +</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">#labs(</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#title = &quot;Residual Plots by Model&quot;,</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">#x = &quot;Predicted Team Wins&quot;,</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#y = &quot;Residual&quot;</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  <span class="co">#)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 </section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 <p>This research evaluated LASSO and Ridge regression against a baseline Ordinary Least Squares model to predict team wins using quarterback performance statistics. This research examined the impact of multicollinearity on team wins in the NFL and determined key quarterback statistics that influence team success. </p>
 <p>Prior to researching the linear regression model compared to LASSO and Ridge regularized regression model, the correlation plot from Figure 1 shows an almost perfect correlation between passing statistics such as completions and pass attempts (r=0.99) and passing yards (r=0.96) and EPA gave the strongest correlation with team wins (r=0.66) and completion percentage gave a moderately positive correlation with team wins (r=0.41). </p>
-<p>Figures 2 and 3 indicated possible strong positive correlation between team wins versus passing yards and team wins versus passing touchdowns preemptively suggesting these to be key variables in predicting team wins. However, as shown in Table 2, the baseline Ordinary Least Squares (OLS) model in this research gave a negative coefficient for passing yards possibly being influenced by multicollinearity due to passing yards being highly correlated with other predictors such as completions and attempts. </p>
+<p>Figures 2 and 3 indicated possible strong positive correlation between team wins versus passing yards and team wins versus passing touchdowns preemptively suggesting these to be key variables in predicting team wins. However, as shown in table 2, the baseline Ordinary Least Squares (OLS) model in this research gave a negative coefficient for passing yards possibly being influenced by multicollinearity due to passing yards being highly correlated with other predictors such as completions and attempts. While passing touchdowns and passing EPA are consistent in all 3 models, indicating to be key predictors of team success.</p>
 <p>Ridge regression reduced the value of all the coefficients without removing predictors while LASSO regression shrunk the coefficients of passing yards and attempts to zero implicating these variables to be the least important in predicting wins comparatively with other quarterback variables. Which previously passing yards was assumed to be a key variable but LASSO results show the contrary. Although passing yards through LASSO and OLS analysis went against previous assumptions, passing touchdowns maintained a strong positive relationship with team wins. </p>
 <p>The combination of the distorted OLS coefficient and elimination in LASSO, shows that passing yards, pass attempts and rushing yards proved to not be key indicators of team success. When evaluating performance prediction accuracy of OLS, LASSO and Ridge regression as shown in Table 3, LASSO achieved the highest overall fit with the lowest RMSE and MAE and highest <span class="math inline">\(R^2\)</span> with OLS following second and Ridge following in third with the lowest fit out of the other 2 models with the values being very close. </p>
 <p>Although OLS appears similar in this comparison result, its previous erratic coefficient value from earlier diagnostics causes concern for interpretability. Overall even though OLS seemed to perform similarly to LASSO and Ridge slightly in model performance metrics (RSME, MAE and <span class="math inline">\(R^2\)</span>), LASSO and Ridge with their shrinking techniques helped to reduce the overall impact of multicollinearity more efficiently than OLS suggesting that traditional linear regression methods could be uncertain when facing complex and highly correlated variables. LASSO proved to be the best methodology overall comparatively with its feature selection, low RSME and MAE and high <span class="math inline">\(R^2\)</span>.</p>

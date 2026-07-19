@@ -114,8 +114,9 @@ team performance.
 ## Methods
 
 Following base cleaning of the data, numerical values were scaled to a
-mean of 0 and a standard deviation of 1. The data were standardized
-based upon:
+mean of 0 and a standard deviation of 1 in an effort to preserve
+proportionate influence upon results. The data were standardized based
+upon:
 
 $$x_{ij}^{\text{scaled}}
 =
@@ -125,7 +126,9 @@ where $x_{ij}$ represents value of feature j for observation i, $\mu_j$
 represents mean of feature j, and $\sigma_j$ represents standard
 deviation of feature j.
 
-A standard linear regression is used as a baseline, calculated by:
+A standard linear regression (term used interchangeably with Ordinary
+Least Squares and OLS for the purposes of this report) is used as a
+baseline, calculated by:
 
 $$y_i = \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \epsilon_i$$
 
@@ -137,25 +140,13 @@ predictor variables, and $p$ represents the total number of predictor
 variables, and $\epsilon_i$ represents the random error term for
 observation i.
 
-For the LASSO and Ridge regression methods, the regularization parameter
-($\lambda$) was selected using a 10-fold cross validation, defined as:
-
-$$\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k$$
-
-ensuring a practical 90/10 train-test split, a common approach for
-numerical datasets of less than 1000 observations. Within the function,
-the dataset is divided into ten equally sized subsets, where nine folds
-are used to train the model while the remaining fold is reserved for
-validation (testing). The process is repeated until each fold has served
-as the validation set exactly once, and the resulting validation errors
-are averaged to estimate the model's predictive performance. By
-evaluating each candidate value of the regularization parameter
-($\lambda$) across all ten folds, what is identified is the value that
-minimizes the cross-validated error. The use of 10-fold cross-validation
-provides a balance between computational efficiency and reliable model
-evaluation, allowing nearly all observations to contribute to both model
-training and validation throughout the procedure, without heightened
-risk of overfitting or underfitting.
+Exploratory analysis will reveal substantial multicollinearity among
+predictor variables. Because correlated predictors can produce unstable
+coefficient estimates in Ordinary Least Squares regression, regularized
+regression approaches will be used to improve model stability. LASSO and
+Ridge regression were selected because both methods reduce the impact of
+multicollinearity through coefficient shrinkage, while differing in
+their approach to variable retention and selection.
 
 The LASSO regression equation upon the data was calculated by:
 
@@ -190,6 +181,26 @@ y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
 \right\}$$
 
 where $\lambda\sum_{j=1}^{p}\beta_j^2$ represents the L2 penalty.
+
+For the LASSO and Ridge regression methods, the regularization parameter
+($\lambda$) was selected using a 10-fold cross validation, defined as:
+
+$$\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k$$
+
+ensuring a practical 90/10 train-test split, a common approach for
+numerical datasets of less than 1000 observations. Within the function,
+the dataset is divided into ten equally sized subsets, where nine folds
+are used to train the model while the remaining fold is reserved for
+validation (testing). The process is repeated until each fold has served
+as the validation set exactly once, and the resulting validation errors
+are averaged to estimate the model's predictive performance. By
+evaluating each candidate value of the regularization parameter
+($\lambda$) across all ten folds, what is identified is the value that
+minimizes the cross-validated error. The use of 10-fold cross-validation
+provides a balance between computational efficiency and reliable model
+evaluation, allowing nearly all observations to contribute to both model
+training and validation throughout the procedure, without heightened
+risk of overfitting or underfitting.
 
 To evaluate the predictive performance of the LASSO and Ridge regression
 models, RMSE, MAE, and R² were calculated using the cross-validated
@@ -777,13 +788,43 @@ title("Figure 7: LASSO Cross-Validation Curve")
 Figures 6 and 7 show how cross-validation was used to identify the
 optimal regularization parameter ($\lambda$) for both Ridge and LASSO
 regression models. The cross-validation curves demonstrate that
-prediction error decreased as regularization was introduced, reached a
-minimum at the selected $\lambda$, and increased with stronger
-regularization. This pattern indicates that a considerable level of
-regularization provided the best balance between model complexity and
-predictive accuracy. The $\lambda$ values corresponding to the minimum
-cross-validation error were used to fit the final Ridge and LASSO
-models.
+prediction error decreased as the strength of regularization was
+reduced, reaching a minimum at the selected $\lambda$ value. Further
+reductions in regularization resulted in minimal improvements in
+prediction error, indicating that the selected $\lambda$ provided an
+appropriate balance between model complexity and predictive accuracy.
+The $\lambda$ values corresponding to the minimum cross-validation error
+were used to fit the final Ridge and LASSO models.
+
+```{r}
+#ols_resid   <- test$wins - ols_pred
+#ridge_resid <- test$wins - ridge_pred
+#lasso_resid <- test$wins - lasso_pred
+
+#residuals_df <- bind_rows(
+  #data.frame(Predicted = ols_pred,
+             #Residual = ols_resid,
+             #Model = "OLS"),
+  #data.frame(Predicted = ridge_pred,
+             #Residual = ridge_resid,
+             #Model = "Ridge"),
+  #data.frame(Predicted = lasso_pred,
+             #Residual = lasso_resid,
+             #Model = "LASSO")
+#)
+
+#ggplot(residuals_df,
+       #aes(x = Predicted, y = Residual)) +
+  #geom_point(alpha = 0.7) +
+  #geom_hline(yintercept = 0, color = "red") +
+  #facet_wrap(~Model) +
+  #labs(
+    #title = "Residual Plots by Model",
+    #x = "Predicted Team Wins",
+    #y = "Residual"
+  #)
+
+```
 
 ## Conclusion
 
@@ -804,11 +845,12 @@ wins (r=0.41). 
 Figures 2 and 3 indicated possible strong positive correlation between
 team wins versus passing yards and team wins versus passing touchdowns
 preemptively suggesting these to be key variables in predicting team
-wins. However, as shown in Table 2, the baseline Ordinary Least Squares
+wins. However, as shown in table 2, the baseline Ordinary Least Squares
 (OLS) model in this research gave a negative coefficient for passing
 yards possibly being influenced by multicollinearity due to passing
 yards being highly correlated with other predictors such as completions
-and attempts. 
+and attempts. While passing touchdowns and passing EPA are consistent in
+all 3 models, indicating to be key predictors of team success.
 
 Ridge regression reduced the value of all the coefficients without
 removing predictors while LASSO regression shrunk the coefficients of

@@ -31,19 +31,42 @@ More information about `revealjs`:
 
 ## Introduction {.smaller}
 
-- Develop a storyline that captures attention and maintains interest.
+[*What if we could reliably predict team success in the NFL using QB
+performance data?*]{.underline}
 
-- Your audience is your peers
+- The main goal 
 
-- Clearly state the problem or question you're addressing.
+- Regression models vs Baseline- which is better?
 
-- Introduce why it is relevant needs.
+  - Least Absolute Shrinkage and Selection Operator (LASSO)
 
-- Provide an overview of your approach.
+    - shrinkage technique - L1 regularization
 
-In kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]\*
+    - Key-variable selection
+
+  - Ridge
+
+    - shrinkage technique - L2 regularization 
+
+    - Retains all variables
+
+  - Baseline
+
+    - Ordinary Least Squares (OLS)- standard linear regression mode
+
+## Introduction
+
+Successful studies implementing LASSO/ Ridge
+
+- @bhattacharyya2025lasso and @jana2021football and @geraldo2022credit
+  and @laufer2023sensor and @south2020forecasting and
+  @alshqaq2023diagnostic
+
+Limitations in LASSO
+
+- @lockhart2014lasso and @tarun2026xgboost
+
+Understanding the impact
 
 ## Methods
 
@@ -196,6 +219,11 @@ ggplot(qb_season1, aes(x = passing_tds, y = wins)) + geom_point(alpha = 0.7) + g
 ggplot(qb_season1, aes(x = passing_yards, y = wins)) + geom_point(alpha = 0.7) + geom_smooth(method = "lm") + labs(x="Passing yards", y="Team wins", title = "Passing Yards vs Team Wins")
 ```
 :::
+
+- Exploring the data of passing touchdowns and passing yards prior to
+  modeling.
+
+- Hypothesis
 
 ## Data Exploration and Visualization {.smaller}
 
@@ -435,9 +463,18 @@ title("LASSO Cross-Validation Curve")
 
 ## Conclusion
 
-- Summarize your key findings.
+- Which is better? LASSO
 
-- Discuss the implications of your results.
+  - OLS - unreliable due to multicollinearity
+
+  - Contradiction: passing yards
+
+- Key predictors: Passing EPA and passing touchdowns
+
+- Interpretable foundation of how a quarterback’s performance impacts
+  team wins.
+
+  - Benefits NFL analysts, coaches and recruiters. 
 
 ## References
 
