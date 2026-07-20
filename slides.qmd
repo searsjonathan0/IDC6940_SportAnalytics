@@ -17,8 +17,6 @@ editor:
     wrap: 72
 ---
 
-
-
 ## Introduction {.smaller}
 
 [*What if we could reliably predict team success in the NFL using QB
@@ -30,13 +28,13 @@ performance data?*]{.underline}
 
   - Least Absolute Shrinkage and Selection Operator (LASSO)
 
-    - shrinkage technique - L1 regularization
+    - Shrinkage technique - L1 regularization
 
     - Key-variable selection
 
   - Ridge
 
-    - shrinkage technique - L2 regularization 
+    - Shrinkage technique - L2 regularization 
 
     - Retains all variables [@tibshirani1996lasso]
 
@@ -46,8 +44,9 @@ performance data?*]{.underline}
 
 ## Introduction {.smaller}
 
-Previous studies done that analyze data on NFL defensive player performance and
-game results using Logisitic Regression, Support Vector Machines, Random Forest Classification
+Previous studies done that analyze data on NFL defensive player
+performance and game results using Logistic Regression, Support Vector
+Machines, Random Forest Classification
 
 - @gweon2024nfl and @juuri2023nfl
 
