@@ -48,13 +48,18 @@ performance data?*]{.underline}
 
     - shrinkage technique - L2 regularization 
 
-    - Retains all variables
+    - Retains all variables [@tibshirani1996lasso]
 
   - Baseline
 
     - Ordinary Least Squares (OLS)- standard linear regression mode
 
-## Introduction
+## Introduction {.smaller}
+
+Previous studies done that analyze data on NFL defensive player performance and
+game results using Logisitic Regression, Support Vector Machines, Random Forest Classification
+
+- @gweon2024nfl and @juuri2023nfl
 
 Successful studies implementing LASSO/ Ridge
 
@@ -68,11 +73,162 @@ Limitations in LASSO
 
 Understanding the impact
 
-## Methods
+## Methods (Standardization)
 
-- Detail the models or algorithms used.
+$$x_{ij}^{\text{scaled}}
+=
+\frac{x_{ij}-\mu_j}{\sigma_j}$$
 
-- Justify your choices based on the problem and data.
+where $x_{ij}$ represents value of feature j for observation i, $\mu_j$
+represents mean of feature j, and $\sigma_j$ represents standard
+deviation of feature j.
+
+- Data was scaled to a mean of 0 and a standard deviation of 1 in an
+  effort to preserve proportionate influence upon results
+
+## Methods (Ordinary Least Squares Regression) {.smaller}
+
+$$y_i = \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij} + \epsilon_i$$
+
+where $y_i$ represents the observed response for observation i,
+$\beta_0$ represents the intercept term, $x_{ij}$ represents the value
+of predictor variable j for observation i, $\beta_j$ represents the
+coefficient associated with predictor, $j$ represents the index of the
+predictor variables, and $p$ represents the total number of predictor
+variables, and $\epsilon_i$ represents the random error term for
+observation i.
+
+- Substantial multicollinearity among predictor variables present within
+  the OLS, confirming purpose for LASSO and Ridge
+
+## Methods (LASSO Regression)
+
+$$\hat{\boldsymbol{\beta}}
+=
+\arg\min_{\boldsymbol{\beta}}
+\left\{
+\sum_{i=1}^{n}
+\left(
+y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
+\right)^2
++
+\lambda\sum_{j=1}^{p}|\beta_j|
+\right\}$$
+
+where $\hat{\boldsymbol{\beta}}$ represents the estimated coefficient
+vector, $\lambda$ represents the regularization parameter, and
+$\lambda\sum_{j=1}^{p}|\beta_j|$ representing the L1 penalty.
+
+- L1 penalty can set coefficients exactly to 0 and selects features,
+  producing lean models
+
+## Methods (Ridge Regression)
+
+$$\hat{\boldsymbol{\beta}}
+=
+\arg\min_{\boldsymbol{\beta}}
+\left\{
+\sum_{i=1}^{n}
+\left(
+y_i-\beta_0-\sum_{j=1}^{p}\beta_jx_{ij}
+\right)^2
++
+\lambda\sum_{j=1}^{p}\beta_j^2
+\right\}$$
+
+where $\lambda\sum_{j=1}^{p}\beta_j^2$ represents the L2 penalty.
+
+- L2 penalty shrinks coefficients but rarely exactly to 0 and keeps all
+  features in some aspect, producing predictor-dense models
+
+## Methods (10-Fold Cross Validation) {.smaller}
+
+For the LASSO and Ridge regression methods, the regularization parameter
+($\lambda$) was selected using a 10-fold cross validation, defined as:
+
+$$\mathrm{CV}_{10} = \frac{1}{10}\sum_{k=1}^{10} L_k$$
+
+- Selects regulation parameter
+
+- 90/10 train-test split, a common approach for numerical datasets of
+  less than 1000 observations without heightened risk of overfitting or
+  underfitting
+
+- Dataset divided into ten equally sized subsets, with nine folds for
+  training and one for testing. Each fold serves as validation set once,
+  with resulting validation errors averaged to estimate the model’s
+  predictive performance. Evaluating each candidate value of the
+  regularization parameter ($\lambda$) across all ten folds, identifies
+  the value that minimizes the cross-validated error
+
+## Methods (Root Mean Square Error)
+
+$$\mathrm{RMSE}
+=
+\sqrt{
+\frac{1}{n}
+\sum_{i=1}^{n}
+(y_i-\hat{y}_i)^2
+}$$
+
+where n represents the number of observations, $y_i$ represents the
+observed response value for observation i, $\hat{y}_i$ represents the
+predicted response value for observation i, and $y_i-\hat{y}_i$
+represents the prediction error.
+
+- Quantifies average prediction error with emphasis on larger errors due
+  to the squared error term
+
+## Methods (Mean Absolute Error)
+
+$$\mathrm{MAE}
+=
+\frac{1}{n}
+\sum_{i=1}^{n}
+\left|y_i-\hat{y}_i\right|$$
+
+- Quantifies average prediction error although less sensitive to extreme
+  observations (no squaring of the error term)
+
+## Methods ($R^2$)
+
+$$R^2 =
+1 -
+\frac{
+\sum_{i=1}^{n}(y_i-\hat{y}_i)^2
+}{
+\sum_{i=1}^{n}(y_i-\bar{y})^2
+}$$
+
+where $\bar{y}$ represents the mean of the observed response values,
+$\sum_{i=1}^{n}(y_i-\hat{y}_i)^2$ represents the residual sum of
+squares, and $\sum_{i=1}^{n}(y_i-\bar{y})^2$ represents the total sum of
+squares.
+
+- Measures the proportion of variation in the response variable
+  explained by the model
+
+- Lowest RMSE and MAE, and highest R-Squared often dictate the strongest
+  model
+
+## Methods {.smaller}
+
+The R programming language was the primary software used in this
+analysis.
+
+Packages used:
+
+- nflreadr: data source for the analysis, accessible within R
+
+- pandas: Python package for data preprocessing, however used in R
+  environment
+
+- dplyr: data preprocessing package native to R
+
+- corrplot, car, ggplot2: three separate packages used for both
+  preliminary analysis and analysis of final models
+
+- glmnet: computation and selection of the LASSO and Ridge-based models
 
 ## Data Exploration and Visualization (Data Source and Collection Process)
 
@@ -237,6 +393,10 @@ library(ggplot2)
 ggplot(VIF_Visualization_Dataframe, aes(x = reorder(Variable, VIF), y = VIF)) + geom_col(fill = "steelblue") + geom_hline(yintercept = 5, linetype = "dashed", color = "red") + coord_flip() + labs(title = "Variance Inflation Factors (VIFs) of Dataset Predictors", x = "Predictor", y = "VIF") + theme_minimal()
 
 ```
+
+- Indicators of multicollinear variables of the OLS; threshold of 5
+
+- Proves need of regularization, or the purpose of fitting LASSO/Ridge
 
 ## Modeling and Results (Data Preprocessing)
 
@@ -460,6 +620,11 @@ title("Ridge Cross-Validation Curve")
 plot(lasso_cv)
 title("LASSO Cross-Validation Curve")
 ```
+
+- $\lambda$ decreasing = regularization decreasing = MSE decreasing
+
+- Selection of balanced $\lambda$ prevented over- or
+  under-regularization; better optimized as improvement diminishes
 
 ## Conclusion
 

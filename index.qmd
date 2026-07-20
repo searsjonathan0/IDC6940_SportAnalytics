@@ -35,10 +35,16 @@ multicollinearity, being a negative impact on the least square estimator
 in regression due to correlation between variables
 [@mcdonald2009ridge]. 
 
-With the implementation of a machine learning regression model such as
-Least Absolute Shrinkage and Selection Operator (LASSO), and Ridge we
-can simplify the variables and focus only on the important aspects that
-help to accurately predict wins. The difference between LASSO and Ridge
+Previous NFL studies have successfully used machine learning methods
+such as Logistic Regression, Random Forests, and Support Vector Machines
+to predict NFL defensive player performance and game outcomes. In this
+study, we instead focus on Ridge and LASSO regression because these
+methods effectively address multicollinearity while maintaining
+predictive accuracy.[@gweon2024nfl; @juuri2023nfl]. With the
+implementation of a machine learning regression model such as Least
+Absolute Shrinkage and Selection Operator (LASSO), and Ridge we can
+simplify the variables and focus only on the important aspects that help
+to accurately predict wins. The difference between LASSO and Ridge
 regression comes from how their penalties are calculated mathematically.
 LASSO uses a shrinkage technique called L1 regularization, where it
 zeros out the least important variables, leaving only variables that are
@@ -46,12 +52,13 @@ optimal for accurate prediction. Ridge regression uses a shrinkage
 technique called L2 regularization where it helps reduce
 multicollinearity without removing variables from the original set of
 independent variables. This helps with some of the distortion of the
-predictors. Another area where ridge differs from LASSO is that in the
-end and final model, ridge retains all variables . LASSO is a “step-up”
+predictors. Another area where Ridge differs from LASSO is that in the
+end and final model, Ridge retains all variables . LASSO is a “step-up”
 from Ridge allowing for key variable selection, where Ridge can struggle
 with its limitations due to retention of all variables. This highlights
 that LASSO’s ability to produce a subset of “key-variables” from a
-high-dimensional dataset, makes it highly efficient.
+high-dimensional dataset, makes it highly efficient
+[@tibshirani1996lasso].
 
 Previous research examining LASSO regression has consistently
 demonstrated its usefulness in datasets containing large numbers of
@@ -857,10 +864,10 @@ removing predictors while LASSO regression shrunk the coefficients of
 passing yards and attempts to zero implicating these variables to be the
 least important in predicting wins comparatively with other quarterback
 variables. Which previously passing yards was assumed to be a key
-variable but LASSO results show the contrary. Although passing yards
+variable but lasso results show the contrary. Although passing yards
 through LASSO and OLS analysis went against previous assumptions,
 passing touchdowns maintained a strong positive relationship with team
-wins. 
+wins.
 
 The combination of the distorted OLS coefficient and elimination in
 LASSO, shows that passing yards, pass attempts and rushing yards proved
